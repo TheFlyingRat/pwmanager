@@ -1,0 +1,92 @@
+@startuml classes
+interface IEncryptionStrategy {
+  + Encrypt(string plain, Key key)
+  + Decrypt(string cipher, Key key)
+}
+
+class Key
+
+class AESEncryption
+class CaesarEncryption
+class ChachaEncryptionStrategy
+class TwofishEncryptionStrategy
+
+class DatabaseFile
+
+
+class Entry {
+  - Id
+  - Title
+  - Username
+  - CiphertextPassword
+  - Notes
+  - URL
+  + MaskPassword(): void
+  + UnmaskPassword(): void
+}
+class Vault {
+  - Entries: List<Entry>
+  - MasterKey: Key
+  - IsLocked: bool
+  + AddEntry(Entry entry): void
+  + GetEntry(string id): Entry
+  + ListEntries(): List<Entry>
+  + SearchEntries(string query): Entry
+}
+
+
+class EntryRepository {
+  + SaveEntry(Entry entry): void
+  + DeleteEntry(string id): void
+  + GetEntry(string id): Entry
+  + ListEntries(): List<Entry>
+}
+
+
+class EntryService {
+  + AddEntry(title, user, pass, notes, ...)
+  + ViewEntry(string id): Entry (decrypted)
+  + ListEntries(): List<Entry>
+  + DeleteEntry(string id): void
+}
+
+
+interface ICommand {
+  + Execute(): void
+  + Undo(): RevertedVaultState
+  + Redo(): RevertedVaultState
+}
+
+
+class AddEntryCommand
+class DeleteEntryCommand
+class ViewEntryCommand
+
+
+class CLI {
+  + ShowMenu(): void
+  + HandleChoice(): void
+  + PromptForDetails(): void
+}
+
+IEncryptionStrategy <|.. AESEncryption
+IEncryptionStrategy <|.. CaesarEncryption
+IEncryptionStrategy <|.. ChachaEncryptionStrategy
+IEncryptionStrategy <|.. TwofishEncryptionStrategy
+
+Vault --> EntryRepository
+
+EntryService --> EntryRepository
+EntryService --> IEncryptionStrategy
+EntryService --> Vault
+
+DatabaseFile <-- EntryRepository
+
+Entry *-- Vault
+
+AddEntryCommand -|> ICommand
+DeleteEntryCommand -|> ICommand
+ViewEntryCommand -|> ICommand
+
+CLI --> EntryService
+@enduml

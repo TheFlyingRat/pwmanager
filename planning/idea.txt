@@ -1,0 +1,93 @@
+- PWMan (we need a good name)
+- A C# based password manager
+- it will run natively on the Dotnet runtime therefore being cross-platform
+- it will user a local database probably sqlite saving to a file
+- users probably have the choice of encryption using like aes or something else like chacha or twofish
+- probably a cli interface but we can make this extensible by making a API using asp or something so we can host this in the web
+- can also make a ui using splashkit but i wanna avoid that since splahkit is hard to use because it is really low end
+- maui??? 
+- we will probably need lots of classes 
+- lots of libraries as well such as cryptography libraries
+- classes such as user, password entry, database, encryption, cli 
+
+
+
+-- roles --
+user --> interacts right now via the cli
+entry --> stores the account, username, properties and encrypted password
+encryption --> handles the conversion of plaintext into a ciphertext and vice versa
+vault --> handles the database and storage of entries - manages how itll be saved and loaded
+repository --> saves and loads entries to json or sqlite 
+command --> handles the commands and user inputs for CRUD operations
+cli --> handles the user interface and interactions
+
+
+
+-- classes --
+IEncryptionStrategy: (strategy pattern??)
+    encrypt(plain, key), decrypt(cipher, key)
+    
+    AesEncryptionStrategy: implements IEncryptionStrategy
+    ChachaEncryptionStrategy: implements IEncryptionStrategy
+    TwofishEncryptionStrategy: implements IEncryptionStrategy
+
+ICommand: (command pattern) - defines what the user is able to perform - similar to permissions?????
+    why: because we can create a command and have it executed - the command already knows how to execute itself. it encapsulates.
+    why: we can also have a command history supporting therefore undo/redo
+    future: invoker. Invoker.queue(command), Invoker.runAllQueued() or some complicated fluff lol
+    Execute, Undo, AddEntry, DeleteEntry, ViewEntry, ListEntries, SearchEntries, LockVault, UnlockVault
+
+entry: - stores the details of an entry
+    id, title, username, properties, ciphertext, notes, date, createdAt, updatedAt
+
+    MaskPassword(self), UnmaskPassword(self)
+
+1. vault: (singleton pattern) - holds entries in memory after unlocking
+    entries (list of entry)
+    Key (master key for encryption/decryption) -- stored in memory, bad practice but proof of concept of course
+    IsLocked: bool, 
+    Lock(), Unlock(key), AddEntry(entry), GetEntry(id), ListEntries() still encrypted, SearchEntries(query)
+    does not need to delete because its just in memory. memory leak?
+
+2. EntryRepository: - stores/retrieves stuff to database file
+    -- this doesnt know how to encrypt or decrypt, just stores stuff
+    SaveEntry(), GetEntry(), GetEntries() still encrypted, DeleteEntry(id)
+
+3. EntryService: - handles adding of entries because some fields need encryption
+    AddEntry(title, username, password, notes), ViewEntry(id) decrypts password and stuff, ListEntries() decrypted ones
+
+cli: - handles user input and output
+    ShowMenu(), HandleInput(input), PromptForEntryDetails()
+
+
+important to note that the password and username, notes optionally will be encrypted. the actually ID, service name and date will not be encrypted when saved to the database.
+
+scope:
+demonstrates encryption and decryption
+demonstrates saving and loading from a local database
+demonstrates a simple cli interface for user interaction
+demonstrates basic CRUD operations for password entries
+does not demonstrate advanced security features like 2FA, biometric auth (2fa can be added later)
+does not demonstrate a graphical user interface (GUI) (yet???)
+does not demonstrate safely handling sensitive data in memory
+does not demonstrate advanced search or filtering of entries
+does not demonstrate syncing across devices or cloud storage
+does not demonstrate user management or multi-user support
+
+
+regarding the method that adds passwords
+
+cli --> entryservice "add entry Gmail"
+entryservice --> vault "hey are you unlocked?"
+entryservice --> encryptionstrategy "okay please encrypt this now"
+entryservice --> vault "hey add this entry now to your list in memory for fast access"
+entryservice --> repository "okay save this to the repository now because we dont need it in memory anymore" "okay entry added successfully"
+
+
+and to view them
+
+cli --> entryservice "view entry 1234"
+entryservice --> repository "give me this encrypted entry"
+entryservice --> encryptionstrategy "okay please decrypt this now"
+entryservice --> vault "hey if youre unlocked, store this because we need it right now"
+entryservice --> cli "here is the decrypted entry as plaintext"
