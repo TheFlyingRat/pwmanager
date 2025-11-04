@@ -2,6 +2,13 @@
 
 namespace PWMan.Core;
 
+public enum EntryType
+{
+    Generic,
+    Wifi,
+    SecureNote
+}
+
 public class Entry : IdentifiableObject
 {
     public Entry(string title, string username = "", string password = "", string notes = "", string url = "")
@@ -14,6 +21,7 @@ public class Entry : IdentifiableObject
         Url = url;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        EntryType = EntryType.Generic;
     }
 
     public string Title { get; set; }
@@ -23,4 +31,5 @@ public class Entry : IdentifiableObject
     public string Url { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public EntryType EntryType { get; set; }
 }
