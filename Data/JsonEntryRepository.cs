@@ -40,6 +40,8 @@ public class JsonEntryRepository : IEntryRepository
             return JsonSerializer.Deserialize<List<Entry>>(json) ?? new List<Entry>();
         } catch (JsonException) {
             // TODO (valid path but no data): handle case where file is corrupted or not valid json after decryption
+            // also bad decryption key could lead to this
+            Console.WriteLine("Failed to decrypt! Empty vault returned.");
             return new List<Entry>();
         }
     }

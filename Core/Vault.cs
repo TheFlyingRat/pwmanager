@@ -22,7 +22,8 @@ public class Vault
     {
         Encryption = new Caesar();
         KDF = new Argon2Derivation();
-        Repository = new JsonEntryRepository("vault.json", Encryption, "not used for caesar");
+        Repository = new JsonEntryRepository("vault.json", Encryption, "joey");
+        // TODO: check if repository comes back as not existing, and if so, create a new one with new keyfile
     }
 
     // accessor for our singleton instance
