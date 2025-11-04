@@ -38,6 +38,7 @@ public class AddEntryCommand : Command
         };
 
         Vault.Instance.AddEntry(newEntry);
+        Vault.Repository.SaveEntry(newEntry);
         return $"Entry '{name}' added successfully.";
     }
 }
