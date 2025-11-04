@@ -4,7 +4,7 @@ namespace PWMan.Core;
 
 public abstract class Command : IdentifiableObject
 {
-    public abstract void Execute(string[] args);
+    public abstract bool Execute(string[] args);
 
     public virtual string GetHelp()
     {
