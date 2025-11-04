@@ -2,10 +2,10 @@ namespace PWMan.Core;
 
 public enum SecurityType
 {
-    Open,
-    WPA,
-    WPA2,
-    WPA3,
-    WEP,
-    Other
+    open,
+    wpa,
+    wpa2,
+    wpa3,
+    wep,
+    other
 }
