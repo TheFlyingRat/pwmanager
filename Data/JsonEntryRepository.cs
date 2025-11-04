@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using PWMan.Core;
 using PWMan.Core.Encryption;
 
@@ -9,6 +10,12 @@ public class JsonEntryRepository : IEntryRepository
     private readonly string _filePath;
     private readonly IEncryptionStrategy _encryption;
     private readonly string _key;
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        // store enums as strings: "SecureNote" instead of 1 (safer over time)
+        Converters = { new JsonStringEnumConverter(allowIntegerValues: true) }
+    };
 
     public JsonEntryRepository(string filePath, IEncryptionStrategy encryption, string key)
     {
@@ -37,7 +44,7 @@ public class JsonEntryRepository : IEntryRepository
         try
         {
             var json = _encryption.Decrypt(File.ReadAllText(_filePath), _key);
-            return JsonSerializer.Deserialize<List<Entry>>(json) ?? new List<Entry>();
+            return DeserializeEntries(json);
         } catch (JsonException) {
             // TODO (valid path but no data): handle case where file is corrupted or not valid json after decryption
             // also bad decryption key could lead to this
@@ -93,5 +100,36 @@ public class JsonEntryRepository : IEntryRepository
         var json = JsonSerializer.Serialize(emptyList);
         var encryptedJson = _encryption.Encrypt(json, _key);
         File.WriteAllText(_filePath, encryptedJson);
+    }
+
+    private List<Entry> DeserializeEntries(string json)
+    {
+        var elements = JsonSerializer.Deserialize<List<JsonElement>>(json);
+        var entries = new List<Entry>();
+
+        foreach (var element in elements)
+        {
+            int typeValue = element.GetProperty("EntryType").GetInt32(); // enum value
+
+            Entry entry;
+            switch ((EntryType)typeValue)
+            {
+                case EntryType.SecureNote:
+                    entry = JsonSerializer.Deserialize<SecureNote>(element);
+                    break;
+
+                case EntryType.Wifi:
+                    entry = JsonSerializer.Deserialize<WifiEntry>(element);
+                    break;
+
+                default:
+                    entry = JsonSerializer.Deserialize<Entry>(element);
+                    break;
+            }
+
+            entries.Add(entry);
+        }
+
+        return entries;
     }
 }
