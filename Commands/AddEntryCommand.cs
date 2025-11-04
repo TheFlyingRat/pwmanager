@@ -13,32 +13,32 @@ public class AddEntryCommand : Command
             return "Vault is locked. Please unlock it first.";
         }
 
-        Console.Write("Entry Name: ");
-        string name = Console.ReadLine() ?? "";
-
-        Console.Write("Username: ");
-        string username = Console.ReadLine() ?? "";
-
-        Console.Write("Password: ");
-        string password = Console.ReadLine() ?? "";
-        // TODO: hide password input
-
-        Console.Write("URL: ");
-        string url = Console.ReadLine() ?? "";
-
-        Console.Write("Notes: ");
-        string notes = Console.ReadLine() ?? "";
-
-        Entry newEntry = new Entry(name)
+        // test entry type
+        if (args.Length > 1)
         {
-            Username = username,
-            Password = password,
-            Notes = notes,
-            Url = url
-        };
-
-        Vault.Instance.AddEntry(newEntry);
-        Vault.Repository.SaveEntry(newEntry);
-        return $"Entry '{name}' added successfully.";
+            string entryType = args[1].ToLower();
+            if (entryType == "wifi")
+            {
+                return new AddWifiEntryCommand().Execute(args);
+            }
+            else if (entryType == "securenote")
+            {
+                return new AddSecureNoteEntryCommand().Execute(args);
+            }
+            else
+            {
+                return $"Unknown entry type '{entryType}'.";
+            }
+        }
+        else
+        {
+            return new AddGenericEntryCommand().Execute(args);
+        }
+    }
+    
+    protected static void SaveEntry(Entry entry)
+    {
+        Vault.Instance.AddEntry(entry);
+        Vault.Repository.SaveEntry(entry);
     }
 }
