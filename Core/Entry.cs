@@ -6,7 +6,8 @@ public enum EntryType
 {
     Generic,
     Wifi,
-    SecureNote
+    SecureNote,
+    Unknown
 }
 
 public class Entry : IdentifiableObject
