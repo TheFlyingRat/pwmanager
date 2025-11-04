@@ -25,7 +25,14 @@ public class ListEntriesCommand : Command
             sb.AppendLine("Entries in vault:");
             foreach (var entry in entries)
             {
-                sb.AppendLine($"- {entry.Title} (Username: {entry.Username})");
+                if (args.Length > 1 && args[1] == "details")
+                {
+                    sb.AppendLine($"- {entry.Title} (Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes})");
+                }
+                else
+                {
+                    sb.AppendLine($"- {entry.Title} (Username: {entry.Username})");
+                }
             }
             return sb.ToString();
         }
