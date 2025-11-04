@@ -21,9 +21,9 @@ public class Vault
     // cant create a vault from outside of the actual class as constructor is private
     private Vault()
     {
-        Repository = new JsonEntryRepository("vault.json");
         Encryption = new Caesar();
         KDF = new Argon2Derivation();
+        Repository = new JsonEntryRepository("vault.json", Encryption);
     }
 
     // accessor for our singleton instance
