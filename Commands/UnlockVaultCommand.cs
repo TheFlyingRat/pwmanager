@@ -1,36 +1,35 @@
-using System.Net.Http.Headers;
 using PWMan.Core;
 
 namespace PWMan.Commands;
 
 public class UnlockVaultCommand : Command
 {
-    public override string Name { get; protected set; } = "unlock-vault";
+    public override string Name { get; protected set; } = "unlock";
 
-    public override bool Execute(string[] args)
+    public override string Execute(string[] args)
     {
-        if (args[0] == "")
+        var helpRequested = base.Execute(args);
+        if (helpRequested != "") { return helpRequested; }
+
+        if (args.Length < 2)
         {
-            Console.WriteLine("No master password provided.");
-            return false;
+            return "No master password provided.";
         }
 
         string target = KeyFile.ReadFromFile("keyfile.txt");
 
         byte[] salt = Convert.FromBase64String(target.Split('?')[1]);
 
-        byte[] key = Vault.KDF.DeriveKey(args[0] ?? "", salt); // derive the key to cache
+        byte[] key = Vault.KDF.DeriveKey(args[1] ?? "", salt); // derive the key to cache
 
         string hash = Convert.ToBase64String(key) + "?" + Convert.ToBase64String(salt);
 
-        // Console.WriteLine("Full hash is: " + hash);
-
-        return Vault.Instance.Unlock(hash);
+        return Vault.Instance.Unlock(hash) ? "Vault unlocked successfully." : "Incorrect master password.";
     }
 
 
     public override string GetHelp()
     {
-        return "Usage: unlock-vault\nUnlocks the password vault.";
+        return $"Usage: {Name}\nUnlocks the password vault.";
     }
 }
