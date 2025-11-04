@@ -2,10 +2,10 @@ namespace PWMan.Core;
 
 public class WifiEntry : Entry
 {
-    public WifiEntry(string title, string ssid, string password, SecurityType securityType, string notes = "") : base(title, notes)
+    public WifiEntry(string title, string ssid, SecurityType securityType, string password = "", string notes = "") : base(title, notes)
     {
         Ssid = ssid;
-        Password = password;
+        Password = password; // can be empty for open networks
         SecurityType = securityType;
         EntryType = EntryType.Wifi;
     }
