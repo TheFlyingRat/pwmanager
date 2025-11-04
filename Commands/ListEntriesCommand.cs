@@ -27,7 +27,20 @@ public class ListEntriesCommand : Command
             {
                 if (args.Length > 1 && args[1] == "details")
                 {
-                    sb.AppendLine($"- {entry.Title} (Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}), CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt}");
+                    switch (entry.EntryType)
+                    {
+                        case EntryType.Wifi:
+                            var wifiEntry = (WifiEntry)entry;
+                            sb.AppendLine($"- {entry.Title} (SSID: {wifiEntry.Ssid}, Security: {wifiEntry.SecurityType}, Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
+                            break;
+                        case EntryType.SecureNote:
+                            var noteEntry = (SecureNote)entry;
+                            sb.AppendLine($"- {entry.Title} (Content: {noteEntry.Content}, Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
+                            break;
+                        case EntryType.Generic:
+                            sb.AppendLine($"- {entry.Title} (Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
+                            break;
+                    }
                 }
                 else
                 {
