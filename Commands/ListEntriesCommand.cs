@@ -27,7 +27,7 @@ public class ListEntriesCommand : Command
             {
                 if (args.Length > 1 && args[1] == "details")
                 {
-                    sb.AppendLine($"- {entry.Title} (Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes})");
+                    sb.AppendLine($"- {entry.Title} (Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}), CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt}");
                 }
                 else
                 {
