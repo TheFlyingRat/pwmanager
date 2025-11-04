@@ -12,4 +12,5 @@ public interface IEntryRepository
     List<Entry> GetAllEntries();
     void DeleteEntry(Guid id);
     void SaveAllEntries(List<Entry> entries);
+    void Create();
 }
