@@ -8,25 +8,37 @@ public class JsonEntryRepository : IEntryRepository
 {
     private readonly string _filePath;
     private readonly IEncryptionStrategy _encryption;
+    private readonly string _key;
 
-    public JsonEntryRepository(string filePath, IEncryptionStrategy encryption)
+    public JsonEntryRepository(string filePath, IEncryptionStrategy encryption, string key)
     {
         _filePath = filePath;
         _encryption = encryption;
+        _key = key;
+    }
+
+    private bool Exists()
+    {
+        if (!File.Exists(_filePath))
+        {
+            Create();
+            return false;
+        }
+        return true;
     }
 
     public List<Entry> GetAllEntries()
     {
-        if (!File.Exists(_filePath))
+        if (!Exists())
         {
             return new List<Entry>();
         }
 
         try
         {
-            var json = _encryption.Decrypt(File.ReadAllText(_filePath), "not used in caesar!");
+            var json = _encryption.Decrypt(File.ReadAllText(_filePath), _key);
             return JsonSerializer.Deserialize<List<Entry>>(json) ?? new List<Entry>();
-        } catch (System.Text.Json.JsonException) {
+        } catch (JsonException) {
             // TODO (valid path but no data): handle case where file is corrupted or not valid json after decryption
             return new List<Entry>();
         }
@@ -46,7 +58,7 @@ public class JsonEntryRepository : IEntryRepository
             entries.Add(entry); // Add new entry
         }
         var json = JsonSerializer.Serialize(entries);
-        var encryptedJson = _encryption.Encrypt(json, "not used in caesar!");
+        var encryptedJson = _encryption.Encrypt(json, _key);
         File.WriteAllText(_filePath, encryptedJson);
     }
 
@@ -62,25 +74,22 @@ public class JsonEntryRepository : IEntryRepository
         entries.RemoveAll(e => e.Id == id); // lambda
 
         var json = JsonSerializer.Serialize(entries);
-        var encryptedJson = _encryption.Encrypt(json, "not used in caesar!");
+        var encryptedJson = _encryption.Encrypt(json, _key);
         File.WriteAllText(_filePath, encryptedJson);
     }
 
     public void SaveAllEntries(List<Entry> entries)
     {
         var json = JsonSerializer.Serialize(entries);
-        var encryptedJson = _encryption.Encrypt(json, "not used in caesar!");
+        var encryptedJson = _encryption.Encrypt(json, _key);
         File.WriteAllText(_filePath, encryptedJson);
     }
 
     public void Create()
     {
-        if (!File.Exists(_filePath))
-        {
-            var emptyList = new List<Entry>();
-            var json = JsonSerializer.Serialize(emptyList);
-            var encryptedJson = _encryption.Encrypt(json, "not used in caesar!");
-            File.WriteAllText(_filePath, encryptedJson);
-        }
+        var emptyList = new List<Entry>();
+        var json = JsonSerializer.Serialize(emptyList);
+        var encryptedJson = _encryption.Encrypt(json, _key);
+        File.WriteAllText(_filePath, encryptedJson);
     }
 }
