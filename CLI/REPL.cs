@@ -71,7 +71,7 @@ namespace PWMan.CLI
             // show registered commands and their help too
             foreach (var cmd in _invoker.RegisteredCommands)
             {
-                Console.WriteLine($"  {cmd.Name} - {cmd.GetHelp()}");
+                Console.WriteLine($"  {cmd.Name} - {cmd.Help}");
             }
         }
     }

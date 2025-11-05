@@ -4,20 +4,13 @@ namespace PWMan.Core;
 
 public abstract class Command : IdentifiableObject
 {
-    public virtual string Execute(string[] args)
+    public Command(string name, string help = "No help available for this command.")
     {
-        // Console.WriteLine ("args: " + string.Join(", ", args));
-        if (args.Length > 1 && (args[1] == "help" || args[1] == "h")) // "unlock help" (therefore check args[1])
-        {
-            return GetHelp();
-        }
-        return ""; // default implementation does nothing
+        Name = name;
+        Help = help;
     }
 
-    public virtual string GetHelp()
-    {
-        return "No help available for this command.";
-    }
-
-    public abstract string Name { get; protected set; }
+    public abstract string Execute(string[] args);
+    public virtual string Name { get; protected set; }
+    public virtual string Help { get; protected set; }
 }

@@ -4,8 +4,7 @@ namespace PWMan.Commands;
 
 public class AddEntryCommand : Command
 {
-    public override string Name { get; protected set; } = "new";
-
+    public AddEntryCommand() : base("add", "Adds a new entry to the vault. Usage: add (optional: entryType)") { }
     public override string Execute(string[] args)
     {
         if (Vault.Instance.IsLocked)
