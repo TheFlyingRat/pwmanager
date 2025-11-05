@@ -26,6 +26,13 @@ namespace PWMan.Core
                 return;
             }
 
+            // was help requested? (would be first argument)
+            if (args != null && args.Length > 1 && (args[1] == "help" || args[1] == "h"))
+            {
+                Console.WriteLine(commands[name].Command.Help);
+                return;
+            }
+
             string[] runArgs = args ?? commands[name].DefaultArgs;
             string response = commands[name].Command.Execute(runArgs);
 
