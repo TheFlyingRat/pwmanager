@@ -4,13 +4,10 @@ namespace PWMan.Commands;
 
 public class UnlockVaultCommand : Command
 {
-    public override string Name { get; protected set; } = "unlock";
+    public UnlockVaultCommand() : base("unlock", "Unlocks the password vault.") { }
 
     public override string Execute(string[] args)
     {
-        var helpRequested = base.Execute(args);
-        if (helpRequested != "") { return helpRequested; }
-
         if (args.Length < 2)
         {
             return "No master password provided.";
@@ -25,11 +22,5 @@ public class UnlockVaultCommand : Command
         string hash = Convert.ToBase64String(key) + "?" + Convert.ToBase64String(salt);
 
         return Vault.Instance.Unlock(hash) ? "Vault unlocked successfully." : "Incorrect master password.";
-    }
-
-
-    public override string GetHelp()
-    {
-        return "Unlocks the password vault.";
     }
 }

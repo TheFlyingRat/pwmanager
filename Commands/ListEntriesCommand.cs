@@ -5,13 +5,10 @@ namespace PWMan.Commands;
 
 public class ListEntriesCommand : Command
 {
-    public override string Name { get; protected set; } = "list";
+    public ListEntriesCommand() : base("list", "Lists all entries in the vault. Use 'list details' to show detailed information.") { }
 
     public override string Execute(string[] args)
     {
-        var helpRequested = base.Execute(args);
-        if (helpRequested != "") { return helpRequested; }
-
         try
         {
             var entries = Vault.Instance.ListEntries();
@@ -54,10 +51,4 @@ public class ListEntriesCommand : Command
             return ex.Message;
         }
     }
-
-    public override string GetHelp()
-    {
-        return "Lists all entries in the vault. Use 'list details' to show detailed information.";
-    }
-
 }

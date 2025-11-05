@@ -4,8 +4,6 @@ namespace PWMan.Commands;
 
 public class AddGenericEntryCommand : AddEntryCommand
 {
-    public override string Name { get; protected set; } = "new";
-
     public override string Execute(string[] args)
     {
         if (Vault.Instance.IsLocked)

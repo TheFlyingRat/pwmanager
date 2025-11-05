@@ -4,8 +4,6 @@ namespace PWMan.Commands;
 
 public class AddSecureNoteEntryCommand : AddEntryCommand
 {
-    public override string Name { get; protected set; } = "new securenote";
-
     public override string Execute(string[] args)
     {
         if (Vault.Instance.IsLocked)

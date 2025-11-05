@@ -4,8 +4,6 @@ namespace PWMan.Core;
 
 public class AddWifiEntryCommand : AddEntryCommand
 {
-    public override string Name { get; protected set; } = "new wifi";
-
     public override string Execute(string[] args)
     {
         if (Vault.Instance.IsLocked)
