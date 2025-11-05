@@ -31,5 +31,6 @@ namespace PWMan.Core
 
             Console.WriteLine(response);
         }
+        public List<Command> RegisteredCommands { get { return commands.Values.Select(v => v.Command).ToList(); } }
     }
 }
