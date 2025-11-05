@@ -30,6 +30,6 @@ public class UnlockVaultCommand : Command
 
     public override string GetHelp()
     {
-        return $"Usage: {Name}\nUnlocks the password vault.";
+        return "Unlocks the password vault.";
     }
 }

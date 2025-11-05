@@ -55,5 +55,9 @@ public class ListEntriesCommand : Command
         }
     }
 
+    public override string GetHelp()
+    {
+        return "Lists all entries in the vault. Use 'list details' to show detailed information.";
+    }
 
 }

@@ -16,6 +16,6 @@ public class LockVaultCommand : Command
 
     public override string GetHelp()
     {
-        return $"Usage: {Name}\nLocks the password vault.";
+        return "Locks the password vault.";
     }
 }
