@@ -9,11 +9,18 @@ namespace PWMan.Core.KeyDerivation;
 public class Argon2Derivation : IKeyDerivation
 {
 
-    private int Iterations = 3; // Number of iterations for Argon2
-    private int MemorySize = 1024 * 64; // 64 MB
-    private int DegreeOfParallelism = 2; // Number of parallel threads
-    private int KeySize = 32; // match sha256
+    private int Iterations {get; set;}
+    private int MemorySize {get; set;}
+    private int DegreeOfParallelism {get; set;}
+    private int KeySize {get; set;}
 
+    public Argon2Derivation(int iterations = 3, int memorySize = 1024 * 64, int degreeOfParallelism = 2, int keySize = 32)
+    {
+        Iterations = iterations;
+        MemorySize = memorySize;
+        DegreeOfParallelism = degreeOfParallelism;
+        KeySize = keySize;
+    }
 
     public byte[] DeriveKey(string password, byte[] salt)
     {
