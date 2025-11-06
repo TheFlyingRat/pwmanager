@@ -1,17 +1,23 @@
+using PWMan.Commands;
+
 namespace PWMan.Core;
 
 public class CommandInvoker
 {
     private Dictionary<string, (Command Command, string[] DefaultArgs)> commands = new Dictionary<string, (Command, string[])>();
 
-    public void RegisterCommand(Command command, string[]? defaultArgs = null, string? name = null)
+    public void RegisterCommand(Command command, string[]? defaultArgs = null, string? name = null, string? help = null, bool requiresVault = true)
     {
         name ??= command.Name; // unless a custom name is given, use the command's own name (null coalescing operator)
-        commands[name] = (command, defaultArgs ?? []);
+
+        command.Help = help ?? command.Help; // override help if provided
+        command.Name = name; // override name is provided
+        command.RequiresVault = requiresVault; // if a custom command RequiresVault
+        commands[name] = (command, defaultArgs ?? []); // set the local dictionary
     }
 
     // Run using either overridden args (if provided) or the stored args
-    public void Run(string name, string[]? args = null)
+    public void Run(string name, string[] args)
     {
         if (!commands.ContainsKey(name))
         {
@@ -30,7 +36,7 @@ public class CommandInvoker
         if (!Vault.Exists)
         {
             // only can load or create if theres no vault
-            if (name != "load" && name != "create")
+            if (commands[name].Command.RequiresVault)
             {
                 Console.WriteLine("Cannot execute without a vault! Did you load or create first?");
                 return;
@@ -41,14 +47,14 @@ public class CommandInvoker
         else
         {
             // prevent creating or loading another
-            if (name == "load" || name == "create")
+            if (commands[name].Command is LoadVaultCommand || commands[name].Command is CreateVaultCommand)
             {
                 Console.WriteLine("A vault is already loaded. Please unload before creating/loading another one!");
                 return;
             }
         }
 
-        string[] runArgs = args ?? commands[name].DefaultArgs;
+        string[] runArgs = args!.Length > 1 ? args : commands[name].DefaultArgs;
         string response = commands[name].Command.Execute(runArgs);
 
         Console.WriteLine(response);

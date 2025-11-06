@@ -5,8 +5,7 @@ namespace PWMan.CLI
     public class REPL
     {
         private readonly CommandInvoker _invoker = new CommandInvoker();
-
-        private readonly int RegisteredCommandCount;
+        public int RegisteredCommandCount { get; private set; }
 
         private void Banner()
         {
@@ -28,6 +27,13 @@ namespace PWMan.CLI
             // "if only i had time:" allow registering commands while running?
 
             RegisteredCommandCount = commands.Count;
+        }
+
+        // allow custom command registration with args
+        public void RegisterCommand(Command command, string[]? defaultArgs = null, string? name = null, string? help = null, bool requiresVault = true)
+        {
+            _invoker.RegisterCommand(command, defaultArgs, name, help, requiresVault);
+            RegisteredCommandCount++;
         }
 
         public void Start()

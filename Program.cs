@@ -28,6 +28,9 @@ static class Program
         Log.SetMode(0);
 
         REPL repl = new REPL(commands);
+
+        repl.RegisterCommand(new LoadVaultCommand(), ["load", "json", "vault.dat"], "lv", "Shortcut to load JSON format 'vault.dat'", false);
+
         repl.Start();
     }
 }

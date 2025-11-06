@@ -11,6 +11,7 @@ public abstract class Command : IdentifiableObject
     }
 
     public abstract string Execute(string[] args);
-    public string Name { get; }
-    public string Help { get; }
+    public string Name { get; set; } // for custom commands
+    public string Help { get; set; } // for custom commands
+    public bool RequiresVault { get; set; } = true;
 }
