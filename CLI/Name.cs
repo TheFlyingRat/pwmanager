@@ -6,6 +6,6 @@ namespace PWMan.CLI
         public const string Author = "Joey Manani";
         public const string Copyright = "© 2025 Joey Manani. All rights reserved.";
         public const string CLIName = "pwman";
-        public const string Description = "PWManager - todo";
+        public const string Description = "PWManager - Pretty simple password manager for oop class";
     }
 }
