@@ -10,5 +10,4 @@ public class VaultMetadata
     public int KeySize { get; set; } = 32;
     public int Iterations { get; set; } = 100000;
     public byte[]? Salt { get; set; }
-    public string? Key { get; set; }
 }
