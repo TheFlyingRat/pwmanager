@@ -23,7 +23,7 @@ public static class EntrySerializer
     }
 
     // deserialize json string into a list of Entry (polymorphic deserialization)
-    public static List<Entry> DeserializeEntries(string json)
+    public static List<Entry>? DeserializeEntries(string json)
     {
         try
         {
@@ -56,7 +56,7 @@ public static class EntrySerializer
         }
         catch
         {
-            return new List<Entry>();
+            return null;
         }
     }
 }
