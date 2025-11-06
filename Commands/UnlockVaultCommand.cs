@@ -1,3 +1,4 @@
+using System.Text;
 using PWMan.Core;
 
 namespace PWMan.Commands;
@@ -10,17 +11,32 @@ public class UnlockVaultCommand : Command
     {
         if (args.Length < 2)
         {
-            return "No master password provided.";
+            return "Usage: unlock <master password>";
         }
 
-        string target = KeyFile.ReadFromFile("keyfile.txt");
+        if (!Vault.Exists)
+        {
+            // can't confirm vault exists
+            return "No vault found to unlock. Did you load?";
+        }
 
-        byte[] salt = Convert.FromBase64String(target.Split('?')[1]);
+        if (!Vault.Instance.IsLocked)
+        {
+            return "Vault is already unlocked.";
+        }
 
-        byte[] key = Vault.KDF.DeriveKey(args[1] ?? "", salt); // derive the key to cache
-
-        string hash = Convert.ToBase64String(key) + "?" + Convert.ToBase64String(salt);
-
-        return Vault.Instance.Unlock(hash) ? "Vault unlocked successfully." : "Incorrect master password.";
+        try
+        {
+            Vault.Instance.Unlock(args[1]);
+            return "Successfully unlocked!";
+        }
+        catch (InvalidOperationException ex)
+        {
+            return ex.Message;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return "Incorrect master password.";
+        }
     }
 }
