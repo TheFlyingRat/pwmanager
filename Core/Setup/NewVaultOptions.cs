@@ -2,7 +2,6 @@ namespace PWMan.Core.Setup
 {
     public class NewVaultOptions // sets some defaults
     {
-        public string Password { get; set; } = "";
         public EncryptionType Encryption { get; set; } = EncryptionType.AES;
         public DerivationType Kdf { get; set; } = DerivationType.Argon2;
         public int Iterations { get; set; } = 0;
