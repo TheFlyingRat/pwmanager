@@ -7,30 +7,33 @@ static class Program
 {
     public static void Main(string[] args)
     {
-        List<Command> commands = new List<Command>
+        List<CommandRegistration> commands = new List<CommandRegistration>()
         {
-            new CreateVaultCommand(),
+            // basic commands
+            new CommandRegistration(new CreateVaultCommand(), RequiresVault: false),
 
-            new LoadVaultCommand(),
-            new UnloadVaultCommand(),
+            new CommandRegistration(new LoadVaultCommand(), RequiresVault: false),
+            new CommandRegistration(new UnloadVaultCommand()),
 
-            new LockVaultCommand(),
-            new UnlockVaultCommand(),
+            new CommandRegistration(new LockVaultCommand()),
+            new CommandRegistration(new UnlockVaultCommand()),
 
-            new AddEntryCommand(),
-            new ListEntriesCommand(),
-            new DeleteEntryCommand(),
-            new SearchEntriesCommand(),
-            new GetEntryCommand(),
+            new CommandRegistration(new AddEntryCommand()),
+            new CommandRegistration(new GetEntryCommand()),
 
-            new SaveVaultCommand(), // not really required due to autosave
+            new CommandRegistration(new SearchEntriesCommand()),
+            new CommandRegistration(new ListEntriesCommand()),
+            new CommandRegistration(new DeleteEntryCommand()),
+
+            new CommandRegistration(new SaveVaultCommand()),
+
+            // custom commands
+            new CommandRegistration(new LoadVaultCommand(), DefaultArgs: ["load", "json", "vault.dat"], Name: "lv", Help: "Shortcut to load JSON format 'vault.dat'", RequiresVault: false)
         };
 
         Log.SetMode(0);
 
         REPL repl = new REPL(commands);
-
-        repl.RegisterCommand(new LoadVaultCommand(), ["load", "json", "vault.dat"], "lv", "Shortcut to load JSON format 'vault.dat'", false);
 
         repl.Start();
     }

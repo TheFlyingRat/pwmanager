@@ -17,21 +17,24 @@ namespace PWMan.CLI
             Console.WriteLine();
         }
 
-        public REPL(List<Command> commands)
+        public REPL(List<CommandRegistration> registrations)
         {
-            foreach (var command in commands)
+            foreach (var register in registrations)
             {
-                _invoker.RegisterCommand(command);
+                RegisterCommand(register.Command, register.DefaultArgs, register.Name, register.Help, register.RequiresVault);
             }
 
             // "if only i had time:" allow registering commands while running?
 
-            RegisteredCommandCount = commands.Count;
+            RegisteredCommandCount = registrations.Count;
         }
 
         // allow custom command registration with args
         public void RegisterCommand(Command command, string[]? defaultArgs = null, string? name = null, string? help = null, bool requiresVault = true)
         {
+            if (help != null) { command.Help = help; }
+            if (name != null) { command.Name = name; }
+            command.RequiresVault = requiresVault; // true by default
             _invoker.RegisterCommand(command, defaultArgs, name, help, requiresVault);
             RegisteredCommandCount++;
         }
