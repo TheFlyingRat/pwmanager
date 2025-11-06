@@ -6,13 +6,15 @@ static class Program
 {
     public static void Main(string[] args)
     {
-
         List<Command> commands = new List<Command>
         {
             new UnlockVaultCommand(),
             new LockVaultCommand(),
             new AddEntryCommand(),
-            new ListEntriesCommand()
+            new ListEntriesCommand(),
+            new SaveVaultCommand(),
+            new NewVaultCommand(),
+            new LoadVaultCommand()
         };
 
         REPL repl = new REPL(commands);
