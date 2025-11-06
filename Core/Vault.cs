@@ -27,6 +27,7 @@ public class Vault
     private Vault()
     {
         _entries = new List<Entry>();
+        _metadata = new VaultMetadata();
     }
 
     // accessor for our singleton instance
