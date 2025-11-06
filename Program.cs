@@ -1,4 +1,5 @@
-﻿using PWMan.CLI;
+﻿using PWMan;
+using PWMan.CLI;
 using PWMan.Commands;
 using PWMan.Core;
 
