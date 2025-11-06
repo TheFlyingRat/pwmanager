@@ -61,10 +61,10 @@ namespace PWMan.Core.Setup
         // helper to generate the vault (not instantiated until Vault.Instance is referenced because singleton)
         public static void WireVault(IEncryptionStrategy enc, IKeyDerivation kdf, IEntryRepository repo, string password)
         {
-            Vault.Encryption = enc;
-            Vault.KDF = kdf;
-            Vault.Repository = repo;
-            Vault.RuntimePassword = password;
+            Vault.Instance.Encryption = enc;
+            Vault.Instance.KDF = kdf;
+            Vault.Instance.Repository = repo;
+            Vault.Instance.RuntimePassword = password;
         }
     }
 }
