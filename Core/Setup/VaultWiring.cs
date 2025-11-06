@@ -55,7 +55,6 @@ namespace PWMan.Core.Setup
             meta.SaltSize = options.SaltSize;
             meta.RepositoryType = options.SaveType;
             meta.SaveFile = options.SaveFile;
-            meta.Salt = RandomNumberGenerator.GetBytes(options.SaltSize);
         }
 
         // helper to generate the vault (not instantiated until Vault.Instance is referenced because singleton)
