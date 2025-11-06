@@ -52,11 +52,17 @@ namespace PWMan.CLI
                         ShowHelp();
                         break;
                     case "exit" or "quit":
-                        if (!Vault.Instance.IsLocked) { Vault.Instance.Lock(); }; // ensure vault is locked but also saves any changes
+                        if (Vault.Exists && !Vault.Instance.IsLocked) { Vault.Instance.Lock(); }; // ensure vault is locked but also saves any changes
                         Console.WriteLine("Exiting PWMan. Goodbye!");
                         return;
                     default:
-                        _invoker.Run(commandName, inputArgs);
+                        try
+                        {
+                            _invoker.Run(commandName, inputArgs);
+                        } catch (Exception ex)
+                        {
+                            Console.WriteLine($"Uncaught Exception: {ex.Message}");
+                        }
                         break;
                 }
             }
