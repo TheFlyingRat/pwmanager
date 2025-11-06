@@ -41,7 +41,7 @@ public static class GetDefaultValidate
         string input = Console.ReadLine();
         int value;
         try { value = Convert.ToInt32(input); } catch { value = defaultValue; } // convert to string (unsuccessful use default)
-        if (min > value || value < max) { value = defaultValue; } // was given int? okay range check
+        if (value < min || value > max) { value = defaultValue; } // was given int? okay range check
         return value;
     }
 
