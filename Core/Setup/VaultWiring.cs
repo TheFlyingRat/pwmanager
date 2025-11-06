@@ -10,11 +10,11 @@ namespace PWMan.Core.Setup
         // helper method to determine encryption type to use based on options
         public static IEncryptionStrategy BuildEncryption(NewVaultOptions options)
         {
-            switch (options.Encryption.ToLower())
+            switch (options.Encryption)
             {
-                case "caesar":
+                case EncryptionType.caesar:
                     return new Caesar();
-                case "aes":
+                case EncryptionType.aes:
                 default:
                     return new AES(saltSize: options.SaltSize);
             }
@@ -23,11 +23,11 @@ namespace PWMan.Core.Setup
         // helper to determine kdf based on options
         public static IKeyDerivation BuildKdf(NewVaultOptions options)
         {
-            switch (options.Kdf.ToLower())
+            switch (options.Kdf)
             {
-                case "argon2":
+                case DerivationType.argon2:
                     return new Argon2Derivation(iterations: options.Iterations, keySize: options.KeySize);
-                case "pbkdf2":
+                case DerivationType.pbkdf2:
                 default:
                     return new Pbkdf2Derivation(iterations: options.Iterations, keySize: options.KeySize);
             }
@@ -36,11 +36,11 @@ namespace PWMan.Core.Setup
         // helper to determine repo type based on options
         public static IEntryRepository BuildRepository(NewVaultOptions options, IEncryptionStrategy enc)
         {
-            switch (options.SaveType.ToLower())
+            switch (options.RepositoryType)
             {
-                case "memory":
+                case RepositoryType.memory:
                     return new InMemoryRepository(enc);
-                case "json":
+                case RepositoryType.json:
                 default:
                     return new JsonEntryRepository(options.SaveFile, enc);
             }
@@ -54,7 +54,7 @@ namespace PWMan.Core.Setup
             meta.Iterations = options.Iterations;
             meta.KeySize = options.KeySize;
             meta.SaltSize = options.SaltSize;
-            meta.RepositoryType = options.SaveType;
+            meta.RepositoryType = options.RepositoryType;
             meta.SaveFile = options.SaveFile;
         }
 
