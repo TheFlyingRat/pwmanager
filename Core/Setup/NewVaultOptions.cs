@@ -3,12 +3,21 @@ namespace PWMan.Core.Setup
     public class NewVaultOptions // sets some defaults
     {
         public string Password { get; set; } = "";
-        public string Encryption { get; set; } = "aes";
-        public string Kdf { get; set; } = "pbkdf2";
-        public int Iterations { get; set; } = 300_000;
+        public EncryptionType Encryption { get; set; } = EncryptionType.aes;
+        public DerivationType Kdf { get; set; } = DerivationType.argon2;
+        public int Iterations { get; set; } = 0;
         public int KeySize { get; set; } = 32;
         public int SaltSize { get; set; } = 16;
-        public string SaveType { get; set; } = "json";
-        public string SaveFile { get; set; } = "vault.json";
+        public RepositoryType RepositoryType { get; set; } = RepositoryType.json;
+        public string SaveFile { get; set; } = "vault.dat";
+
+
+        // for validation only
+        public int Argon2IterationsMin { get; set; } = 3;
+        public int Argon2Iterations { get; set; } = 3;
+        public int Argon2IterationsMax { get; set; } = 1024;
+        public int Pbkdf2IterationsMin { get; set; } = 100_000;
+        public int Pbkdf2Iterations { get; set; } = 300_000;
+        public int Pbkdf2IterationsMax { get; set; } = 100_000_000;
     }
 }
