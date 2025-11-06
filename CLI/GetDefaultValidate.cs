@@ -46,6 +46,15 @@ public static class GetDefaultValidate
         }
     }
 
+    public static string GetPasswordRequired(string query)
+    {
+        string? input = string.Empty;
+        while (input == string.Empty)
+        {
+            input = PasswordReader.Get(query);
+        }
+        return input;
+    }
     public static DerivationType ValidateDerivation(string prompt, DerivationType defaultValue)
     {
         // get all names within the enum
