@@ -67,11 +67,13 @@ public class Vault
         catch (UnauthorizedAccessException ex)
         {
             RuntimePassword = null;
+            _metadata = new VaultMetadata(); // prevent stale metadata
             throw new UnauthorizedAccessException(ex.Message);
         }
         catch (Exception ex) // TODO: determinable exception types
         {
             RuntimePassword = null;
+            _metadata = new VaultMetadata();
             throw new InvalidDataException(ex.Message);
         }
     }
