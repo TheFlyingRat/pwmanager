@@ -7,11 +7,6 @@ public class AddWifiEntryCommand : AddEntryCommand
 {
     public override string Execute(string[] args)
     {
-        if (Vault.Instance.IsLocked)
-        {
-            return "Vault is locked. Please unlock it first.";
-        }
-
         string name = GetDefaultValidate.GetStringRequired("Entry Name: ");
         string ssid = GetDefaultValidate.GetStringRequired("SSID: ");
         string password = GetDefaultValidate.GetString("Password: ", "");

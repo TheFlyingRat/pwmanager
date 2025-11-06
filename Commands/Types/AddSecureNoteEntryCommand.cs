@@ -7,11 +7,6 @@ public class AddSecureNoteEntryCommand : AddEntryCommand
 {
     public override string Execute(string[] args)
     {
-        if (Vault.Instance.IsLocked)
-        {
-            return "Vault is locked. Please unlock it first.";
-        }
-
         string title = GetDefaultValidate.GetStringRequired("Note Title: ");
         string content = GetDefaultValidate.GetString("Note Content: ", "");
 

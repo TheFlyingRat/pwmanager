@@ -7,11 +7,6 @@ public class AddGenericEntryCommand : AddEntryCommand
 {
     public override string Execute(string[] args)
     {
-        if (Vault.Instance.IsLocked)
-        {
-            return "Vault is locked. Please unlock it first.";
-        }
-
         string name = GetDefaultValidate.GetString("Enter Name: ", "<< untitled >>"); // no need to name generic entries...
         string username = GetDefaultValidate.GetString("Username: ", "");
         string password = GetDefaultValidate.GetString("Password: ", ""); // TODO: hide password input
