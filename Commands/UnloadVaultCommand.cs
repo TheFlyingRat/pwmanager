@@ -12,7 +12,7 @@ public class UnloadVaultCommand : Command
     {
         if (!Vault.Instance.IsLocked)
         {
-            Vault.Instance.Lock();
+            Vault.Instance.Lock(); //saves it too
         }
 
         Vault.Instance.Destroy();
