@@ -1,4 +1,5 @@
 using System.Text;
+using PWMan.CLI;
 using PWMan.Core;
 
 namespace PWMan.Commands;
@@ -9,19 +10,16 @@ public class UnlockVaultCommand : Command
 
     public override string Execute(string[] args)
     {
-        if (args.Length < 2)
-        {
-            return "Usage: unlock <master password>";
-        }
-
         if (!Vault.Instance.IsLocked)
         {
             return "Vault is already unlocked.";
         }
 
+        string password = GetDefaultValidate.GetPasswordRequired("Enter password: ");
+
         try
         {
-            Vault.Instance.Unlock(args[1]);
+            Vault.Instance.Unlock(password);
             return "Successfully unlocked!";
         }
         catch (InvalidOperationException ex)
