@@ -1,4 +1,4 @@
-namespace PWMan.CLI;
+namespace PWMan;
 
 public static class Log
 {
