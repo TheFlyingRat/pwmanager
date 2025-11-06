@@ -9,17 +9,23 @@ static class Program
     {
         List<Command> commands = new List<Command>
         {
-            new UnlockVaultCommand(),
+            new CreateVaultCommand(),
+
+            new LoadVaultCommand(),
+            new UnloadVaultCommand(),
+
             new LockVaultCommand(),
+            new UnlockVaultCommand(),
+
             new AddEntryCommand(),
             new ListEntriesCommand(),
-            new SaveVaultCommand(),
-            new CreateVaultCommand(),
-            new LoadVaultCommand(),
-            new SearchEntriesCommand()
+            new DeleteEntryCommand(),
+            new SearchEntriesCommand(),
+
+            new SaveVaultCommand(), // not really required due to autosave
         };
 
-        Log.SetMode(1);
+        Log.SetMode(0);
 
         REPL repl = new REPL(commands);
         repl.Start();
