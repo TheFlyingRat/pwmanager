@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using PWMan.Core.Encryption;
 using PWMan.Core.KeyDerivation;
 using PWMan.Data;
