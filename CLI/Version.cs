@@ -2,6 +2,6 @@ namespace PWMan.CLI
 {
     public static class Version
     {
-        public const string AppVersion = "0.4.0";
+        public const string AppVersion = "0.5.0";
     }
 }
