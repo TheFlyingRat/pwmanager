@@ -7,7 +7,7 @@ public static class GetDefaultValidate
     public static string GetString(string query, string defaultValue)
     {
         Console.Write(query);
-        string input = Console.ReadLine().Trim();
+        string input = Console.ReadLine()?.Trim() ?? "";
         return string.IsNullOrWhiteSpace(input) ? defaultValue : input;
     }
 
@@ -17,7 +17,7 @@ public static class GetDefaultValidate
         while (input == null)
         {
             Console.Write(query);
-            string value = Console.ReadLine().Trim();
+            string value = Console.ReadLine()?.Trim() ?? "";
             input = string.IsNullOrWhiteSpace(value) ? null : value;
         }
         return input;
@@ -30,7 +30,7 @@ public static class GetDefaultValidate
 
         // prompt
         Console.Write($"{prompt} ({string.Join(", ", options)}) [{defaultValue}]: ");
-        string input = Console.ReadLine().Trim();
+        string input = Console.ReadLine()?.Trim() ?? "";
 
         if (string.IsNullOrWhiteSpace(input)) { return defaultValue; }
 
@@ -53,7 +53,7 @@ public static class GetDefaultValidate
 
         // prompt
         Console.Write($"{prompt} ({string.Join(", ", options)}) [{defaultValue}]: ");
-        string input = Console.ReadLine().Trim();
+        string input = Console.ReadLine()?.Trim() ?? "";
 
         if (string.IsNullOrWhiteSpace(input)) { return defaultValue; }
 
@@ -76,7 +76,7 @@ public static class GetDefaultValidate
 
         // prompt
         Console.Write($"{prompt} ({string.Join(", ", options)}) [{defaultValue}]: ");
-        string input = Console.ReadLine().Trim();
+        string input = Console.ReadLine()?.Trim() ?? "";
 
         if (string.IsNullOrWhiteSpace(input)) { return defaultValue; }
         
@@ -92,25 +92,17 @@ public static class GetDefaultValidate
         }
     }
 
-
-    public static int? GetInt(string query)
-    {
-        Console.Write(query);
-        string input = Console.ReadLine();
-        return string.IsNullOrWhiteSpace(input) ? null : Convert.ToInt32(input);
-    }
-
     public static string ValidateString(string query, string[] acceptedValues, string defaultValue)
     {
         Console.Write(query);
-        string input = Console.ReadLine().Trim();
+        string input = Console.ReadLine()?.Trim() ?? "";
         return String(acceptedValues, input, defaultValue);
     }
 
     public static int ValidateInt(string query, int min, int max, int defaultValue)
     {
         Console.Write(query);
-        string input = Console.ReadLine().Trim();
+        string input = Console.ReadLine()?.Trim() ?? "";
         int value;
         try { value = Convert.ToInt32(input); } catch { Console.WriteLine("Invalid choice. Using default: " + defaultValue); value = defaultValue; } // convert to string (unsuccessful use default)
         if (value < min || value > max) { Console.WriteLine("Invalid choice. Using default: " + defaultValue); value = defaultValue; } // was given int? okay range check

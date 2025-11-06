@@ -23,19 +23,19 @@ public static class EntrySerializer
     }
 
     // deserialize json string into a list of Entry (polymorphic deserialization)
-    public static List<Entry>? DeserializeEntries(string json)
+    public static List<Entry> DeserializeEntries(string json)
     {
         try
         {
-            var elements = JsonSerializer.Deserialize<List<JsonElement>>(json, JsonOptions);
+            var elements = JsonSerializer.Deserialize<List<JsonElement>>(json, JsonOptions) ?? new List<JsonElement>(); // if its null after deserialization, create empty
             var entries = new List<Entry>();
 
             foreach (var element in elements)
             {
-                string typeName = element.GetProperty("EntryType").GetString();
+                string typeName = element.GetProperty("EntryType").GetString()!; // null forgive - theres no way for the encrypted part of the save file to be modified to remove EntryType
                 EntryType entryType = Enum.Parse<EntryType>(typeName); // convert type enum name to the enum value
 
-                Entry entry;
+                Entry? entry;
                 switch (entryType)
                 {
                     case EntryType.SecureNote:
@@ -49,14 +49,14 @@ public static class EntrySerializer
                         break;
                 }
 
-                entries.Add(entry);
+                if (entry != null) { entries.Add(entry); }
             }
 
             return entries;
         }
         catch
         {
-            return null;
+            return new List<Entry>();
         }
     }
 }

@@ -9,11 +9,11 @@ namespace PWMan.Data;
 public class JsonEntryRepository : IEntryRepository
 {
     private readonly string _filePath;
-    private readonly IEncryptionStrategy? _encryption;
+    private readonly IEncryptionStrategy _encryption;
 
     private class VaultEnvelope
     {
-        public VaultMetadata? Metadata { get; set; }
+        public VaultMetadata Metadata { get; set; } = new VaultMetadata();
         public string Entries { get; set; } = "";
     }
 
@@ -24,11 +24,14 @@ public class JsonEntryRepository : IEntryRepository
         Converters = { new JsonStringEnumConverter(allowIntegerValues: true) }
     };
 
-    public JsonEntryRepository(string filePath, IEncryptionStrategy? encryption)
+    public JsonEntryRepository(string filePath, IEncryptionStrategy encryption)
     {
         _filePath = filePath;
         _encryption = encryption;
     }
+
+    // ctor for probe
+    public JsonEntryRepository(string filePath) : this(filePath, new AES()) { }
 
 
     // api

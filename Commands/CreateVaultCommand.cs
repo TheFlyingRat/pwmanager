@@ -63,7 +63,7 @@ public class CreateVaultCommand : Command
         Log.Debug("Generating a repository...");
 
         // now tell repository to create - polymorphed
-        Vault.Instance.Repository.Create(Vault.Instance._metadata, o.Password, kdfStrategy);
+        Vault.Instance.Repository!.Create(Vault.Instance._metadata, o.Password, kdfStrategy); // forgive null because we know WireVault assigned a repository
 
         // unlock it with the same runtime password that was provided - Create() called encrypt, unlock calls decrypt again
         Vault.Instance.Unlock(o.Password);

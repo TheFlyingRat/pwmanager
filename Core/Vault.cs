@@ -14,10 +14,10 @@ public class Vault
     public bool IsLocked { get; private set; } = true;
     public static bool Exists { get { return _instance != null; } } // static because only one globally
     public List<Entry> _entries;
+    public VaultMetadata _metadata;
 
 
-     // determinable at load and on creation
-    public VaultMetadata? _metadata;
+     // determinable at load and on creation only hence nullable
     public IEntryRepository? Repository { get; set; }
     public IEncryptionStrategy? Encryption { get; set; }
     public IKeyDerivation? KDF { get; set; }
@@ -60,7 +60,7 @@ public class Vault
         RuntimePassword = password; // set runtimepassword to the given password - it'll be used for encryption
         try
         {
-            _entries = Repository.LoadVault(RuntimePassword, KDF); // does the decrypting
+            _entries = Repository.LoadVault(RuntimePassword, KDF!); // does the decrypting (null forgive)
             IsLocked = false;
             return true;
         }
@@ -156,6 +156,6 @@ public class Vault
     {
         if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot save entries."); }
 
-        Repository.SaveVault(_entries, _metadata, RuntimePassword, KDF); // utilises vault's mem
+        Repository!.SaveVault(_entries, _metadata, RuntimePassword!, KDF!); // utilises vault's mem
     }
 }

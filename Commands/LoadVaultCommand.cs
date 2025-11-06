@@ -89,7 +89,7 @@ public class LoadVaultCommand : Command
         {
             default:
             case RepositoryType.json:
-                return new JsonEntryRepository(path, null); // null encryption - only used for retrieval of metadata
+                return new JsonEntryRepository(path); // null encryption - only used for retrieval of metadata
             // case "sqlite": // TODO
                // return null;
         }
