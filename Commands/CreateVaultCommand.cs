@@ -14,31 +14,28 @@ public class CreateVaultCommand : Command
 
         // TODO: config file to determine what valid types are instead of having to hardcode these
 
-        o.KeySize = 32;
-        o.SaltSize = 16;
-
         o.Password = GetDefaultValidate.GetStringRequired("Enter a new vault password: ");
 
-        o.Encryption = GetDefaultValidate.ValidateString("Select encryption method (aes, caesar) [aes]: ", ["aes", "caesar"], "aes");
+        o.Encryption = GetDefaultValidate.ValidateEncryption("Select encryption method", o.Encryption);
 
-        o.Kdf = GetDefaultValidate.ValidateString("Select KDF (argon2, pbkdf2) [argon2]: ", ["argon2", "pbkdf2"], "argon2");
+        o.Kdf = GetDefaultValidate.ValidateDerivation("Select KDF", o.Kdf);
 
-        if (o.Kdf == "argon2")
+        if (o.Kdf == DerivationType.argon2)
         {
             // gets slow with higher than like 12 on laptops
-            o.Iterations = GetDefaultValidate.ValidateInt("Select iteration count (3-1024) [3]: ", 3, 1024, 3);
+            o.Iterations = GetDefaultValidate.ValidateInt($"Select iteration count ({o.Argon2IterationsMin}-{o.Argon2IterationsMax}) [{o.Argon2Iterations}]: ", o.Argon2IterationsMin, o.Argon2IterationsMax, o.Argon2Iterations); // TODO config for recommended values
         }
         else// if (kdf == "pbkdf2")
         {
             // safe ish
-            o.Iterations = GetDefaultValidate.ValidateInt("Select iteration count (100,000-1,000,000) [350,000]: ", 100_000, 1_000_000, 350_000);
+            o.Iterations = GetDefaultValidate.ValidateInt($"Select iteration count ({o.Pbkdf2IterationsMin}-{o.Pbkdf2IterationsMax}) [{o.Iterations}]: ", o.Pbkdf2IterationsMin, o.Pbkdf2IterationsMax, o.Iterations);
         } 
 
-        o.SaveType = GetDefaultValidate.ValidateString("Select save type (json, memory) [json]: ", ["json", "memory"], "json");
+        o.RepositoryType = GetDefaultValidate.ValidateRepositoryType("Select save type", o.RepositoryType);
 
-        if (o.SaveType != "memory")
+        if (o.RepositoryType != RepositoryType.memory)
         {
-            o.SaveFile = GetDefaultValidate.GetString("Choose output file name [vault.json]: ", "vault.json");
+            o.SaveFile = GetDefaultValidate.GetString($"Choose output file name [{o.SaveFile}]: ", o.SaveFile);
 
             if (File.Exists(o.SaveFile))
             {

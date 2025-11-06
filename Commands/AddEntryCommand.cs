@@ -4,30 +4,26 @@ namespace PWMan.Commands;
 
 public class AddEntryCommand : Command
 {
-    public AddEntryCommand() : base("add", "Adds a new entry to the vault. Optional parameter [wifi, securenote]") { }
+    readonly static string[] options = Enum.GetNames(typeof(EntryType));
+
+    public AddEntryCommand() : base("add", $"Adds a new entry to the vault. Optional parameter [{string.Join("|", options)}]") { }
     public override string Execute(string[] args)
     {
-        // test entry type
-        if (args.Length > 1)
+        string selectedType = args.Length > 1 ? args[1] : "Generic";
+
+        EntryType entryType = Enum.Parse<EntryType>(selectedType);
+
+        switch (entryType)
         {
-            string entryType = args[1].ToLower();
-            if (entryType == "wifi")
-            {
+            case EntryType.Wifi:
                 return new AddWifiEntryCommand().Execute(args);
-            }
-            else if (entryType == "securenote")
-            {
+            case EntryType.SecureNote:
                 return new AddSecureNoteEntryCommand().Execute(args);
-            }
-            else
-            {
-                return $"Unknown entry type '{entryType}'.";
-            }
-        }
-        else
-        {
-            Console.WriteLine("Defaulting to generic entry! Usage: add [wifi/securenote]");
-            return new AddGenericEntryCommand().Execute(args);
+            case EntryType.Generic:
+                return new AddGenericEntryCommand().Execute(args);
+            default:
+                Console.WriteLine($"Defaulting to generic entry! Usage: add [{string.Join("|", options)}]");
+                return new AddGenericEntryCommand().Execute(args);
         }
     }
 }

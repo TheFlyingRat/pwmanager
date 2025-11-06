@@ -8,22 +8,32 @@ namespace PWMan.Commands;
 
 public class LoadVaultCommand : Command
 {
+    readonly static string[] options = Enum.GetNames(typeof(RepositoryType));
+
     public LoadVaultCommand() : base("load", "Loads an existing vault") { }
 
     public override string Execute(string[] args)
     {
-
         // validate args
-        if (args.Length < 3) { return "Usage: load <repository-type> <path-to-vault>"; }
+        if (args.Length < 3) { return $"Usage: load <{string.Join("|", options)}> <path-to-vault>"; }
 
-        string repoType = args[1].Trim().ToLower();
+        RepositoryType repoType;
+        try
+        {
+            repoType = Enum.Parse<RepositoryType>(args[1].Trim(), ignoreCase: true);
+        }
+        catch 
+        {
+            return $"Unknown repository type: {args[1].Trim()}";
+        }
+
         string path = args[2].Trim().ToLower();
 
+        // we cant use memory repositories because they're deleted. 
+        if (repoType == RepositoryType.memory) { return "In-Memory repositories are destroyed after unloading!"; }
 
         // 1. create a probe for metadata - plaintext, so encryption is undetermined
         IEntryRepository probe = CreateRepoWithoutEncryption(repoType, path);
-        if (probe == null) { return $"Unknown repository type: {repoType}"; }
-
         
         VaultMetadata metadata;
         try
@@ -35,9 +45,8 @@ public class LoadVaultCommand : Command
         {
             return $"Failed to read vault metadata: {ex.Message}";
         }
-        metadata.SaveFile ??= path; // use the one from the metadata of the repository, otherwise the one user entered
-                                    // TODO: this can be a save as feature probably
-
+        metadata.SaveFile ??= path; // update metadata of the vault to the current file name
+                                    // TODO: this can be a save as feature probably, maybe rename vault
 
         // 2. we know the metadata, so based on it, we can try to create the kdf, encryption and repository type
         Log.Debug("Trying to build kdf, encryption and repository");
@@ -74,60 +83,56 @@ public class LoadVaultCommand : Command
 
 
 
-    private static IEntryRepository? CreateRepoWithoutEncryption(string type, string path)
+    private static IEntryRepository CreateRepoWithoutEncryption(RepositoryType type, string path)
     {
         switch (type)
         {
-            case "json":
-                return new JsonEntryRepository(path, null); // null encryption - only used for retrieval of metadata
-            case "sqlite":
-                return null; // TODO
             default:
-                return null;
+            case RepositoryType.json:
+                return new JsonEntryRepository(path, null); // null encryption - only used for retrieval of metadata
+            // case "sqlite": // TODO
+               // return null;
         }
     }
 
-    private static IEntryRepository? CreateRepoWithEncryption(string type, string path, IEncryptionStrategy enc)
+    private static IEntryRepository CreateRepoWithEncryption(RepositoryType type, string path, IEncryptionStrategy enc)
     {
         switch (type)
         {
-            case "json":   
+            default:
+            case RepositoryType.json:
                 return new JsonEntryRepository(path, enc); // actual repo object to be used on the vault instance
-            case "sqlite": 
-                return null; // TODO
-            default:       
-                return null;
+            // case "sqlite": 
+            //     return null; // TODO
         }
     }
     
     private static IKeyDerivation BuildKdf(VaultMetadata meta)
     {
-        string method  = (meta.DerivationMethod ?? "pbkdf2").ToLower(); // default
-        int iterations = meta.Iterations > 0 ? meta.Iterations : 100_000; // if the metadata shows argon2, but no iteration count, itll run with 100,000 iterations and lag
-        int keySize    = (meta.KeySize == 16 || meta.KeySize == 24 || meta.KeySize == 32) ? meta.KeySize : 32; // verify for aes
+        DerivationType method  = meta.DerivationMethod; // default
+        int keySize    = (meta.KeySize == 16 || meta.KeySize == 24 || meta.KeySize == 32) ? meta.KeySize : 32; // valid key sizes // TODO: offload
 
         switch (method)
         {
-            case "argon2":
-                return new Argon2Derivation(iterations: iterations, keySize: keySize);
-            case "pbkdf2":
+            case DerivationType.argon2:
             default:
-                return new Pbkdf2Derivation(iterations: iterations, keySize: keySize);
+                return new Argon2Derivation(iterations: meta.Iterations, keySize: keySize);
+            case DerivationType.pbkdf2:
+                return new Pbkdf2Derivation(iterations: meta.Iterations, keySize: keySize);
         }
     }
 
     private static IEncryptionStrategy BuildEncryption(VaultMetadata meta)
     {
-        string method = (meta.EncryptionMethod ?? "aes").ToLower(); // default
-        int saltSize = meta.SaltSize > 0 ? meta.SaltSize : 16;
+        EncryptionType method = meta.EncryptionMethod; // enums use the first value as default https://stackoverflow.com/questions/4967656/what-is-the-default-value-for-enum-variable
 
         switch (method)
         {
-            case "caesar":
+            case EncryptionType.caesar:
                 return new Caesar();
-            case "aes":
+            case EncryptionType.aes:
             default:
-                return new AES(saltSize: saltSize);
+                return new AES(saltSize: meta.SaltSize);
         }
     }
 }
