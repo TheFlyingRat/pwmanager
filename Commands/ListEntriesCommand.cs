@@ -39,7 +39,7 @@ public class ListEntriesCommand : Command
             }
             else
             {
-                sb.AppendLine($"- {entry.Title} (Username: {entry.Username})");
+                sb.AppendLine($"- {entry.Title} (ID: {entry.Id})");
             }
         }
         return sb.ToString();
