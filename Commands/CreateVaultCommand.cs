@@ -27,7 +27,13 @@ public class CreateVaultCommand : Command
         {
             // safe ish
             o.Iterations = GetDefaultValidate.ValidateInt($"Select iteration count ({o.Pbkdf2IterationsMin}-{o.Pbkdf2IterationsMax}) [{o.Iterations}]: ", o.Pbkdf2IterationsMin, o.Pbkdf2IterationsMax, o.Iterations);
-        } 
+        }
+
+        o.KeySize = Convert.ToInt32(
+            GetDefaultValidate.ValidateString("Enter key size (16/24/32) [32]: ", ["16", "24", "32"], "32")
+        );
+
+        // TODO: argon2 mem and parallelism are hardcoded in NewVaultOptions. make this configurable??
 
         o.RepositoryType = GetDefaultValidate.ValidateRepositoryType("Select save type", o.RepositoryType);
 

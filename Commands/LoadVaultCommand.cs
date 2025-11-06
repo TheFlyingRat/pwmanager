@@ -110,13 +110,13 @@ public class LoadVaultCommand : Command
     private static IKeyDerivation BuildKdf(VaultMetadata meta)
     {
         DerivationType method  = meta.DerivationMethod; // default
-        int keySize    = (meta.KeySize == 16 || meta.KeySize == 24 || meta.KeySize == 32) ? meta.KeySize : 32; // valid key sizes // TODO: offload
+        int keySize = (meta.KeySize == 16 || meta.KeySize == 24 || meta.KeySize == 32) ? meta.KeySize : 32;
 
         switch (method)
         {
             case DerivationType.Argon2:
             default:
-                return new Argon2Derivation(iterations: meta.Iterations, keySize: keySize);
+                return new Argon2Derivation(iterations: meta.Iterations, keySize: keySize, degreeOfParallelism: meta.Parallelism, memorySize: meta.MemorySize);
             case DerivationType.PBKDF2:
                 return new Pbkdf2Derivation(iterations: meta.Iterations, keySize: keySize);
         }

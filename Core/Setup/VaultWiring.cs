@@ -26,7 +26,7 @@ namespace PWMan.Core.Setup
             switch (options.Kdf)
             {
                 case DerivationType.Argon2:
-                    return new Argon2Derivation(iterations: options.Iterations, keySize: options.KeySize);
+                    return new Argon2Derivation(iterations: options.Iterations, keySize: options.KeySize, memorySize: options.Argon2MemorySize, degreeOfParallelism: options.Argon2Parallelism);
                 case DerivationType.PBKDF2:
                 default:
                     return new Pbkdf2Derivation(iterations: options.Iterations, keySize: options.KeySize);
@@ -56,6 +56,8 @@ namespace PWMan.Core.Setup
             meta.SaltSize = options.SaltSize;
             meta.RepositoryType = options.RepositoryType;
             meta.SaveFile = options.SaveFile;
+            meta.Parallelism = options.Argon2Parallelism; // still exist even if we're using pbkdf2
+            meta.MemorySize = options.Argon2MemorySize;
         }
 
         // helper to generate the vault (not instantiated until Vault.Instance is referenced because singleton)
