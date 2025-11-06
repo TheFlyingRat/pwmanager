@@ -13,10 +13,12 @@ static class Program
             new AddEntryCommand(),
             new ListEntriesCommand(),
             new SaveVaultCommand(),
-            new NewVaultCommand(),
+            new CreateVaultCommand(),
             new LoadVaultCommand(),
             new SearchEntriesCommand()
         };
+
+        Log.SetMode(1);
 
         REPL repl = new REPL(commands);
         repl.Start();
