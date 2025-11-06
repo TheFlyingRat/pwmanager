@@ -13,4 +13,7 @@ public interface IEntryRepository
     void DeleteEntry(Guid id);
     void SaveAllEntries(List<Entry> entries);
     void Create();
+    void LoadVault();
+    void SaveVault();
+    VaultMetadata ReadMetadata();
 }
