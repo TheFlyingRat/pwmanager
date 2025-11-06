@@ -9,4 +9,6 @@ public class VaultMetadata
     public int SaltSize { get; set; }
     public int KeySize { get; set; }
     public int Iterations { get; set; }
+    public int MemorySize { get; set; }
+    public int Parallelism { get; set; }
 }
