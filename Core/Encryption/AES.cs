@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using PWMan.Core.KeyDerivation;
 
 namespace PWMan.Core.Encryption
 {
@@ -17,7 +18,7 @@ namespace PWMan.Core.Encryption
             TagSize = tagSize;
         }
 
-        public string Encrypt(string plaintext, string password)
+        public string Encrypt(string plaintext, string password, IKeyDerivation KDF)
         {
             Log.Debug("Encrypting...");
             
@@ -25,7 +26,7 @@ namespace PWMan.Core.Encryption
             var salt = Salt.GenerateSalt(SaltSize);
 
             // 2) derive key from password + salt
-            var key = Vault.Instance.KDF.DeriveKey(password, salt);
+            var key = KDF.DeriveKey(password, salt);
 
             // 3) fresh nonce per encryption
             var nonce = Salt.GenerateSalt(NonceSize);
@@ -51,7 +52,7 @@ namespace PWMan.Core.Encryption
             return Convert.ToBase64String(output);
         }
 
-        public string Decrypt(string ciphertext, string password)
+        public string Decrypt(string ciphertext, string password, IKeyDerivation KDF) 
         {
             var input = Convert.FromBase64String(ciphertext);
 
@@ -78,7 +79,7 @@ namespace PWMan.Core.Encryption
             Buffer.BlockCopy(input,     SaltSize + NonceSize + TagSize,     ct, 0, ctLen); // extract the actual encrypted data
 
             // 2) re-derive key
-            var key = Vault.Instance.KDF.DeriveKey(password, salt);
+            var key = KDF.DeriveKey(password, salt);
 
             // 3) decrypt
             var pt = new byte[ct.Length]; // plaintext same size as ciphertext
