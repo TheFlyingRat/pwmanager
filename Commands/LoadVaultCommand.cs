@@ -16,13 +16,6 @@ public class LoadVaultCommand : Command
         // validate args
         if (args.Length < 3) { return "Usage: load <repository-type> <path-to-vault>"; }
 
-
-        // test if theres a currently unlocked vault before we allow loading another one
-        if (!Vault.Instance.IsLocked)
-        {
-            return "Wait! You already have a vault unlocked! Please lock first.";
-        }
-
         string repoType = args[1].Trim().ToLower();
         string path = args[2].Trim().ToLower();
 
@@ -71,6 +64,7 @@ public class LoadVaultCommand : Command
         catch (UnauthorizedAccessException)
         {
             Vault.Instance.RuntimePassword = null; // clear on failure
+            Vault.Instance.Destroy();
             return "Incorrect master password";
         }
     }

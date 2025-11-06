@@ -10,14 +10,12 @@ public class CreateVaultCommand : Command
 
     public override string Execute(string[] args)
     {
-        if (!Vault.Instance.IsLocked)
-        {
-            return "Wait! You already have a vault unlocked! Please lock first.";
-        }
-
         var o = new NewVaultOptions();
 
         // TODO: config file to determine what valid types are instead of having to hardcode these
+
+        o.KeySize = 32;
+        o.SaltSize = 16;
 
         o.Password = GetDefaultValidate.GetStringRequired("Enter a new vault password: ");
 

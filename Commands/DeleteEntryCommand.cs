@@ -9,11 +9,6 @@ public class DeleteEntryCommand : Command
 
     public override string Execute(string[] args)
     {
-        if (Vault.Instance.IsLocked)
-        {
-            return "Vault is locked. Please unlock it first.";
-        }
-
         // determine if we're deleting one, or to show delete menu
         if (args.Length < 2)
         {

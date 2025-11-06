@@ -33,10 +33,26 @@ public class CommandInvoker
             return;
         }
 
-        if (!Vault.Exists && name != "load" && name != "create")
+        // no vault exist yet?
+        if (!Vault.Exists)
         {
-            Console.WriteLine("Cannot execute without a vault! Did you load or create first?");
-            return;
+            // only can load or create if theres no vault
+            if (name != "load" && name != "create")
+            {
+                Console.WriteLine("Cannot execute without a vault! Did you load or create first?");
+                return;
+            }
+        }
+
+        // if it exists (locked or unlocked)
+        else
+        {
+            // prevent creating or loading another
+            if (name == "load" || name == "create")
+            {
+                Console.WriteLine("A vault is already loaded. Please unload before creating/loading another one!");
+                return;
+            }
         }
 
         string[] runArgs = args ?? commands[name].DefaultArgs;

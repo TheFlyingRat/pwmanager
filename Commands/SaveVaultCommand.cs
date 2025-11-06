@@ -8,11 +8,6 @@ public class SaveVaultCommand : Command
     
     public override string Execute(string[] args)
     {
-        if (!Vault.Instance.IsLocked)
-        {
-            return "No unlocked vault to save..";
-        }
-
         Vault.Instance.SaveAll();
         return "Vault saved successfully.";
     }

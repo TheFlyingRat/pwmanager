@@ -9,11 +9,6 @@ public class ListEntriesCommand : Command
 
     public override string Execute(string[] args)
     {
-        if (Vault.Instance.IsLocked)
-        {
-            return "Vault is locked. Please unlock it first.";
-        }
-
         var entries = Vault.Instance.ListEntries();
 
         if (entries.Count == 0)

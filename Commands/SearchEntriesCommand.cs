@@ -9,11 +9,6 @@ public class SearchEntriesCommand : Command
 
     public override string Execute(string[] args)
     {
-        if (Vault.Instance.IsLocked)
-        {
-            return "Vault is locked. Please unlock it first.";
-        }
-
         if (args.Length < 2)
         {
             return "Usage: search <query>";

@@ -14,12 +14,6 @@ public class UnlockVaultCommand : Command
             return "Usage: unlock <master password>";
         }
 
-        if (!Vault.Exists)
-        {
-            // can't confirm vault exists
-            return "No vault found to unlock. Did you load?";
-        }
-
         if (!Vault.Instance.IsLocked)
         {
             return "Vault is already unlocked.";
