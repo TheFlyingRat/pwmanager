@@ -9,7 +9,7 @@ public class AddWifiEntryCommand : AddEntryCommand
     {
         string name = GetDefaultValidate.GetStringRequired("Entry Name: ");
         string ssid = GetDefaultValidate.GetStringRequired("SSID: ");
-        string password = GetDefaultValidate.GetString("Password: ", "");
+        string password = PasswordReader.Get("Enter password: ");
         string security = GetDefaultValidate.GetString("Security Type (WPA, WPA2, WPA3, WEP, Open, Other): ", "other");
         string notes = GetDefaultValidate.GetString("Notes: ", "");
         
