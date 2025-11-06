@@ -4,7 +4,7 @@ namespace PWMan.Commands;
 
 public class AddEntryCommand : Command
 {
-    public AddEntryCommand() : base("add", "Adds a new entry to the vault. Optional parameter entryType") { }
+    public AddEntryCommand() : base("add", "Adds a new entry to the vault. Optional parameter [wifi, securenote]") { }
     public override string Execute(string[] args)
     {
         // test entry type
@@ -26,6 +26,7 @@ public class AddEntryCommand : Command
         }
         else
         {
+            Console.WriteLine("Defaulting to generic entry! Usage: add [wifi/securenote]");
             return new AddGenericEntryCommand().Execute(args);
         }
     }
