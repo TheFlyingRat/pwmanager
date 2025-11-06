@@ -12,7 +12,7 @@ public class CreateVaultCommand : Command
     {
         var o = new NewVaultOptions();
 
-        o.Password = GetDefaultValidate.GetStringRequired("Enter a new vault password: ");
+        string password = GetDefaultValidate.GetPasswordRequired("Enter password: ");
 
         o.Encryption = GetDefaultValidate.ValidateEncryption("Select encryption method", o.Encryption);
 
@@ -56,15 +56,15 @@ public class CreateVaultCommand : Command
 
         // metadata
         VaultWiring.ApplyMetadata(Vault.Instance._metadata, o);
-        VaultWiring.WireVault(encStrategy, kdfStrategy, repo, o.Password);
+        VaultWiring.WireVault(encStrategy, kdfStrategy, repo, password);
 
         Log.Debug("Generating a repository...");
 
         // now tell repository to create - polymorphed
-        Vault.Instance.Repository!.Create(Vault.Instance._metadata, o.Password, kdfStrategy); // forgive null because we know WireVault assigned a repository
+        Vault.Instance.Repository!.Create(Vault.Instance._metadata,password, kdfStrategy); // forgive null because we know WireVault assigned a repository
 
         // unlock it with the same runtime password that was provided - Create() called encrypt, unlock calls decrypt again
-        Vault.Instance.Unlock(o.Password);
+        Vault.Instance.Unlock(password);
 
         return "Vault has been created!";
     }
