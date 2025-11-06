@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using PWMan.Core;
 using PWMan.Core.Encryption;
+using PWMan.Core.KeyDerivation;
 
 namespace PWMan.Data;
 
@@ -49,25 +50,20 @@ public class JsonEntryRepository : IEntryRepository
         return env.Metadata;
     }
 
-    public void LoadVault()
+    public List<Entry> LoadVault(string password, IKeyDerivation KDF)
     {
         if (!File.Exists(_filePath)) { throw new FileNotFoundException("Vault doesn't exist."); }
-
-        if (_encryption == null) { throw new InvalidOperationException("Encryption not configured."); } // only required for decrypting, not reading metadata
 
         Log.Debug("Loading vault...");
         string json = File.ReadAllText(_filePath);
 
         VaultEnvelope env = JsonSerializer.Deserialize<VaultEnvelope>(json, JsonOptions) ?? throw new InvalidDataException("Malformed vault file.");
         if (env.Metadata == null) { throw new InvalidDataException("Missing metadata."); }
-        
-        Log.Debug("Setting vault metadata...");
-        Vault.Instance._metadata = env.Metadata;
 
         string entriesJson;
         try
         {
-            entriesJson = _encryption.Decrypt(env.Entries, Vault.Instance.RuntimePassword);
+            entriesJson = _encryption.Decrypt(env.Entries, password, KDF);
         }
         catch
         {
@@ -75,89 +71,27 @@ public class JsonEntryRepository : IEntryRepository
         }
 
         Log.Debug("Deserializing decrypted entries...");
-        Vault.Instance._entries = DeserializeEntries(entriesJson);
+
+        List<Entry> readEntries = EntrySerializer.DeserializeEntries(entriesJson) ?? throw new UnauthorizedAccessException("Failed to parse JSON! Maybe the password is wrong.");
+        return readEntries;
     }
 
-    public void SaveVault()
+    public void SaveVault(List<Entry> entries, VaultMetadata metadata, string password, IKeyDerivation KDF)
     {
-        Persist(Vault.Instance.ListEntries());
-    }
+        string entriesJson = EntrySerializer.Serialize(entries);
+        string encrypted = _encryption.Encrypt(entriesJson, password, KDF);
 
-
-
-
-
-
-
-    public Entry? GetEntry(Guid id)
-    {
-        var entries = Vault.Instance.ListEntries();
-        return entries.Find(e => e.Id == id); // lambda
-    }
-
-    public void Create()
-    {
-        Persist(new List<Entry>()); // save to disk
-        Vault.Instance._entries = new List<Entry>(); // initialise empty
-    }
-
-
-
-
-
-
-    // writes to the save file
-    private void Persist(List<Entry> entries)
-    {
-        if (_encryption == null) { throw new InvalidOperationException("Encryption not configured."); }
-
-        Log.Debug("Serializing entries...");
-        string entriesJson = JsonSerializer.Serialize(entries, JsonOptions);
-        string encrypted = _encryption.Encrypt(entriesJson, Vault.Instance.RuntimePassword);
-
-        Log.Debug("Saving to file...");
         var env = new VaultEnvelope
         {
-            Metadata = Vault.Instance._metadata,
+            Metadata = metadata,
             Entries = encrypted
         };
 
-        var fileJson = JsonSerializer.Serialize(env, JsonOptions);
-        File.WriteAllText(_filePath, fileJson);
+        File.WriteAllText(_filePath, JsonSerializer.Serialize(env, JsonOptions));
     }
 
-    // types of entry
-    private List<Entry> DeserializeEntries(string json)
+    public void Create(VaultMetadata metadata, string password, IKeyDerivation KDF)
     {
-        var elements = JsonSerializer.Deserialize<List<JsonElement>>(json, JsonOptions);
-        var entries = new List<Entry>();
-
-        foreach (var element in elements)
-        {
-            // Get EntryType as a string
-            string typeName = element.GetProperty("EntryType").GetString();
-            EntryType entryType = Enum.Parse<EntryType>(typeName); // convert type enum name to the enum value
-
-            Entry entry;
-
-            switch (entryType)
-            {
-                case EntryType.SecureNote:
-                    entry = JsonSerializer.Deserialize<SecureNote>(element.GetRawText(), JsonOptions);
-                    break;
-
-                case EntryType.Wifi:
-                    entry = JsonSerializer.Deserialize<WifiEntry>(element.GetRawText(), JsonOptions);
-                    break;
-
-                default:
-                    entry = JsonSerializer.Deserialize<Entry>(element.GetRawText(), JsonOptions);
-                    break;
-            }
-
-            entries.Add(entry);
-        }
-
-        return entries;
+        SaveVault(new List<Entry>(), metadata, password, KDF);
     }
 }
