@@ -57,10 +57,10 @@ public class Vault
 
         Log.Debug("Attempting to unlock vault...");
 
+        RuntimePassword = password; // set runtimepassword to the given password - it'll be used for encryption
         try
         {
-            RuntimePassword = password; // set runtimepassword to the given password - it'll be used for encryption
-            Repository.LoadVault(); // does the decrypting
+            _entries = Repository.LoadVault(RuntimePassword, KDF); // does the decrypting
             IsLocked = false;
             return true;
         }
@@ -154,6 +154,6 @@ public class Vault
     {
         if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot save entries."); }
 
-        Repository.SaveVault(); // utilises vault's mem
+        Repository.SaveVault(_entries, _metadata, RuntimePassword, KDF); // utilises vault's mem
     }
 }
