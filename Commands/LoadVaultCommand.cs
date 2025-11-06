@@ -15,7 +15,7 @@ public class LoadVaultCommand : Command
     public override string Execute(string[] args)
     {
         // validate args
-        if (args.Length < 3) { return $"Usage: load <{string.Join("|", options)}> <path-to-vault>"; }
+        if (args.Length < 3) { return $"Usage: {base.Name} <{string.Join("|", options)}> <path-to-vault>"; }
 
         RepositoryType repoType;
         try
@@ -61,10 +61,10 @@ public class LoadVaultCommand : Command
 
 
         // 3. utilising helper, we can prompt for the vault password - this will fail if the metadata we retrieved was modified externally
-        string password = GetDefaultValidate.GetStringRequired("Enter vault password: "); // creation of vault prevents empty passwords anyways
+        string password = GetDefaultValidate.GetPasswordRequired("Enter password: "); // creation of vault prevents empty passwords anyways
 
 
-        // 4. attempt to unlock
+        // 4. attempt to unlock (quality of life rather than just running "unlock" again)
         try
         {
             Vault.Instance.Unlock(password);

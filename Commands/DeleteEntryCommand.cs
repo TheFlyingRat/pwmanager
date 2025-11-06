@@ -22,7 +22,7 @@ public class DeleteEntryCommand : Command
                 output.AppendLine($"- {entry.Title} (ID: {entry.Id})");
             }
 
-            output.AppendLine("Usage: delete (id)");
+            output.AppendLine($"Usage: {base.Name} (id)");
 
             return output.ToString();
         }

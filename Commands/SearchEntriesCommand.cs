@@ -11,7 +11,7 @@ public class SearchEntriesCommand : Command
     {
         if (args.Length < 2)
         {
-            return "Usage: search <query>";
+            return $"Usage: {base.Name} <query>";
         }
 
         string query = string.Join(' ', args[1..]).ToLower(); // combine all args after command name as query
@@ -29,7 +29,7 @@ public class SearchEntriesCommand : Command
     
         foreach (Entry entry in results)
         {
-            output.AppendLine($"- {entry.Title} (Username: {entry.Username})");
+            output.AppendLine($"- {entry.Title} (ID: {entry.Id})");
         }
 
         return output.ToString();

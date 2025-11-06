@@ -22,7 +22,7 @@ public class AddEntryCommand : Command
             case EntryType.Generic:
                 return new AddGenericEntryCommand().Execute(args);
             default:
-                Console.WriteLine($"Defaulting to generic entry! Usage: add [{string.Join("|", options)}]");
+                Console.WriteLine($"Defaulting to generic entry! Usage: {base.Name} [{string.Join("|", options)}]");
                 return new AddGenericEntryCommand().Execute(args);
         }
     }
