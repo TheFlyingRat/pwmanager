@@ -2,14 +2,6 @@
 
 namespace PWMan.Core;
 
-public enum EntryType
-{
-    Generic,
-    Wifi,
-    SecureNote,
-    Unknown
-}
-
 public class Entry : IdentifiableObject
 {
     public Entry(string title, string username = "", string password = "", string notes = "", string url = "")
