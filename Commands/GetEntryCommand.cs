@@ -11,7 +11,14 @@ public class GetEntryCommand : Command
     {
         if (args.Length < 1) { return $"Usage: {base.Name} <id>"; }
 
-        Guid guid = Guid.Parse(args[1]);
+        Guid guid;
+        try
+        {
+            guid = Guid.Parse(args[1]);
+        } catch
+        {
+            return "Couldn't get an entry with ID: " + args[1];
+        }
 
         Entry? e = Vault.Instance.GetEntry(guid);
 
@@ -27,7 +34,8 @@ public class GetEntryCommand : Command
 
         StringBuilder sb = new StringBuilder();
 
-        sb.AppendLine("Entry: " + e.Title + $"({e.EntryType})");
+        sb.AppendLine("========================");
+        sb.AppendLine("Entry: " + e.Title + $" ({e.EntryType})");
         sb.AppendLine("Created at: " + e.UpdatedAt);
         sb.AppendLine("========================");
         sb.AppendLine("Username: " + e.Username);
@@ -35,6 +43,7 @@ public class GetEntryCommand : Command
         sb.AppendLine("========================");
         sb.AppendLine("URL: " + e.Url);
         sb.AppendLine("Notes: " + e.Notes);
+        sb.AppendLine("========================");
 
         return sb.ToString();
     }
