@@ -1,7 +1,3 @@
-// what this does is store instance state whether the vault is actually
-// unlocked or locked right now as well as a decrypted-password cache
-// so we don't need to constantly decrypt if we're within the same
-// password manager session.
 using PWMan.Core.Encryption;
 using PWMan.Core.KeyDerivation;
 using PWMan.Data;
@@ -11,19 +7,26 @@ namespace PWMan.Core;
 public class Vault
 {
     // singleton pattern, we only have one instance
-    private static Vault? _instance = new Vault(); // eagerly create the instance
-    private List<Entry> _entries = new List<Entry>();
-    public static IEntryRepository? Repository { get; private set; }
-    public static IEncryptionStrategy? Encryption { get; private set; }
-    public static IKeyDerivation? KDF { get; private set; }
+    private static Vault? _instance; // = new Vault(); // eagerly create the instance
+
+
+    // determinable and required (entries can be empty)
+    public bool IsLocked { get; private set; } = true;
+    public static bool Exists { get { return _instance != null; } } // static because only one globally
+    public List<Entry> _entries;
+
+
+     // determinable at load and on creation
+    public VaultMetadata? _metadata;
+    public IEntryRepository? Repository { get; set; }
+    public IEncryptionStrategy? Encryption { get; set; }
+    public IKeyDerivation? KDF { get; set; }
+    public string? RuntimePassword { get; set; }
 
     // cant create a vault from outside of the actual class as constructor is private
     private Vault()
     {
-        Encryption = new Caesar();
-        KDF = new Argon2Derivation();
-        Repository = new JsonEntryRepository("vault.json", Encryption, "joey");
-        // TODO: check if repository comes back as not existing, and if so, create a new one with new keyfile
+        _entries = new List<Entry>();
     }
 
     // accessor for our singleton instance
@@ -39,85 +42,106 @@ public class Vault
             return _instance;
         }
     }
-    public bool IsLocked { get; private set; } = true; // default to locked state only allow unlocking by self masterkey
-    public string? MasterKey { get; private set; } // cached masterkey when unlocked (kdfed)
 
-
-    // unlock vault with a given hash
-    public bool Unlock(string hash)
+    // unlock vault with a given password
+    public bool Unlock(string password)
     {
-        // TODO: determine password kdf so we know what derivation to use here target is stored in keyfile for now but will be in repo.
-        string target = KeyFile.ReadFromFile("keyfile.txt");
+        if (Repository == null) { throw new InvalidOperationException("No repository."); }
 
-        if (target == hash) // replace with actual check
+        try
         {
-            MasterKey = hash; // cache it on the vault instance
+            RuntimePassword = password; // set runtimepassword to the given password - it'll be used for encryption
+            Repository.LoadVault(); // does the decrypting
             IsLocked = false;
-
-            // load entries from repository into memory
-            _entries = Repository.GetAllEntries();
-            Console.WriteLine($"Loaded {_entries.Count} entries from repository.");
             return true;
+        } catch (UnauthorizedAccessException ex)
+        {
+            RuntimePassword = null;
+            throw new UnauthorizedAccessException(ex.Message);
         }
-
-        return false;
+        catch (Exception ex) // TODO: determinable exception types
+        {
+            RuntimePassword = null;
+            throw new InvalidDataException(ex.Message);
+        }
     }
 
     // locks vault and clears self cache to prevent previously decrypted passwords remaining in mem
     public void Lock()
     {
-        if (IsLocked)
-        {
-            throw new InvalidOperationException("Vault is already locked.");
-        }
-        MasterKey = null;
-        IsLocked = true;
+        if (IsLocked) { throw new InvalidOperationException("Vault is already locked."); }
 
-        // clear entries from memory as well 
-        Repository.SaveAllEntries(_entries); // save before clearing
-        _entries.Clear();
+        SaveAll();
+        RuntimePassword = null;
+        _entries.Clear(); // clear entries from memory as well after saving
+        IsLocked = true;
     }
 
+
+
+
+
+    // CRUD
     public void AddEntry(Entry entry)
     {
-        if (IsLocked)
-        {
-            throw new InvalidOperationException("Vault is locked. Cannot add entry.");
-        }
+        if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot add entry."); }
 
         _entries.Add(entry);
-        Repository.SaveEntry(entry);
+        SaveAll();
     }
 
-    public Entry GetEntry(Guid id)
+    public Entry? GetEntry(Guid id)
     {
-        if (IsLocked)
-        {
-            throw new InvalidOperationException("Vault is locked. Cannot get entry.");
-        }
+        if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot get entry."); }
 
-        return _entries.FirstOrDefault(e => e.Id == id) ?? throw new KeyNotFoundException($"Entry with ID '{id}' not found.");
+        return _entries.Find(e => e.Id == id);
     }
 
-    public Entry SearchEntries(string title)
+    public void UpdateEntry(Guid id, Entry entry)
     {
-        if (IsLocked)
-        {
-            throw new InvalidOperationException("Vault is locked. Cannot search entries.");
-        }
+        if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot update entry."); }
 
-        return _entries.FirstOrDefault(e => e.Title.Equals(title.ToLower())) ?? throw new KeyNotFoundException($"Entry with title '{title}' not found.");
+        int index = _entries.FindIndex(e => e.Id == id);
+        if (index == -1) { throw new KeyNotFoundException($"Entry with ID {id} not found."); }
+
+        _entries[index] = entry; // update in existing list
+        SaveAll();
+    }
+
+    public void DeleteEntry(Guid id)
+    {
+        if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot delete entry."); }
+
+        _entries.RemoveAll(entry => entry.Id == id); // should only be one but can use lambda
+        SaveAll();
+    }
+
+
+
+
+
+
+
+    public List<Entry> SearchEntries(string query)
+    {
+        if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot search entries."); }
+
+        return _entries
+            .Where(entry => entry.Title.ToLower().Contains(query)) // fuzzy search using contains (will match single letters though which is fine i suppose???)
+            .ToList();
     }
 
     public List<Entry> ListEntries()
     {
-        if (IsLocked)
-        {
-            throw new InvalidOperationException("Vault is locked. Cannot get entries.");
-        }
+        if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot get entries."); }
 
         return _entries;
     }
 
-    public static bool Exists { get { return _instance != null; } }
+    public void SaveAll()
+    {
+        if (IsLocked) { throw new InvalidOperationException("Vault is locked. Cannot save entries."); }
+
+        Repository.SaveVault(); // utilises vault's mem
+    }
 }
