@@ -44,6 +44,12 @@ public class Vault
         }
     }
 
+
+    public void Destroy()
+    {
+        _instance = null;
+    }
+
     // unlock vault with a given password
     public bool Unlock(string password)
     {
