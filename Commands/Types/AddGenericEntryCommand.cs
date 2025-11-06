@@ -9,7 +9,7 @@ public class AddGenericEntryCommand : AddEntryCommand
     {
         string name = GetDefaultValidate.GetString("Enter Name: ", "<< untitled >>"); // no need to name generic entries...
         string username = GetDefaultValidate.GetString("Username: ", "");
-        string password = GetDefaultValidate.GetString("Password: ", ""); // TODO: hide password input
+        string password = PasswordReader.Get("Enter password: "); // TODO: hide password input
         string url = GetDefaultValidate.GetString("URL: ", "");
         string notes = GetDefaultValidate.GetString("Notes: ", "");
 
