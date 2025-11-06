@@ -21,6 +21,7 @@ static class Program
             new ListEntriesCommand(),
             new DeleteEntryCommand(),
             new SearchEntriesCommand(),
+            new GetEntryCommand(),
 
             new SaveVaultCommand(), // not really required due to autosave
         };
