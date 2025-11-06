@@ -38,6 +38,5 @@ public class AddEntryCommand : Command
     protected static void SaveEntry(Entry entry)
     {
         Vault.Instance.AddEntry(entry);
-        Vault.Repository.SaveEntry(entry);
     }
 }
