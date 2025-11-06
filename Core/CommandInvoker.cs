@@ -10,13 +10,6 @@ public class CommandInvoker
         commands[name] = (command, defaultArgs ?? []);
     }
 
-    public Command? GetCommand(string name)
-    {
-        if (commands.ContainsKey(name))
-            return commands[name].Command;
-        return null;
-    }
-
     // Run using either overridden args (if provided) or the stored args
     public void Run(string name, string[]? args = null)
     {
