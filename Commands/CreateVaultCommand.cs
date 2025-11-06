@@ -4,9 +4,9 @@ using PWMan.Core.Setup;
 
 namespace PWMan.Commands;
 
-public class NewVaultCommand : Command
+public class CreateVaultCommand : Command
 {
-    public NewVaultCommand() : base("create", "Creates a new vault if it doesn't exist already") { }
+    public CreateVaultCommand() : base("create", "Creates a new vault if it doesn't exist already") { }
 
     public override string Execute(string[] args)
     {
@@ -40,7 +40,10 @@ public class NewVaultCommand : Command
 
         o.SaveFile = GetDefaultValidate.GetString("Choose output file name [vault.json]: ", "vault.json");
 
-
+        if (File.Exists(o.SaveFile))
+        {
+            return "Vault already exists! Not implemented: overriding"; // TODO low priority
+        }
 
         // factory
         var encStrategy = VaultWiring.BuildEncryption(o);
