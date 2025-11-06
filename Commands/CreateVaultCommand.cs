@@ -21,7 +21,7 @@ public class CreateVaultCommand : Command
 
         o.Encryption = GetDefaultValidate.ValidateString("Select encryption method (aes, caesar) [aes]: ", ["aes", "caesar"], "aes");
 
-        o.Kdf = GetDefaultValidate.ValidateString("Select KDF (argon2, pbkdf2) [argon2]: ", ["argon2", "pkdf2"], "argon2");
+        o.Kdf = GetDefaultValidate.ValidateString("Select KDF (argon2, pbkdf2) [argon2]: ", ["argon2", "pbkdf2"], "argon2");
 
         if (o.Kdf == "argon2")
         {
@@ -34,14 +34,21 @@ public class CreateVaultCommand : Command
             o.Iterations = GetDefaultValidate.ValidateInt("Select iteration count (100,000-1,000,000) [350,000]: ", 100_000, 1_000_000, 350_000);
         } 
 
-        o.SaveType = GetDefaultValidate.ValidateString("Select save type (json) [json]: ", ["json"], "json");
+        o.SaveType = GetDefaultValidate.ValidateString("Select save type (json, memory) [json]: ", ["json", "memory"], "json");
 
-        o.SaveFile = GetDefaultValidate.GetString("Choose output file name [vault.json]: ", "vault.json");
-
-        if (File.Exists(o.SaveFile))
+        if (o.SaveType != "memory")
         {
-            return "Vault already exists! Not implemented: overriding"; // TODO low priority
+            o.SaveFile = GetDefaultValidate.GetString("Choose output file name [vault.json]: ", "vault.json");
+
+            if (File.Exists(o.SaveFile))
+            {
+                return "Vault already exists! Not implemented: overriding"; // TODO low priority
+            }
+        } else
+        {
+            o.SaveFile = "memory";
         }
+
 
         Log.Debug("Building encryption, kfc and repository...");
 
@@ -59,7 +66,7 @@ public class CreateVaultCommand : Command
         Log.Debug("Generating a repository...");
 
         // now tell repository to create - polymorphed
-        Vault.Instance.Repository.Create();
+        Vault.Instance.Repository.Create(Vault.Instance._metadata, o.Password, kdfStrategy);
 
         // unlock it with the same runtime password that was provided - Create() called encrypt, unlock calls decrypt again
         Vault.Instance.Unlock(o.Password);
