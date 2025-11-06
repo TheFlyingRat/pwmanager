@@ -11,6 +11,6 @@ public abstract class Command : IdentifiableObject
     }
 
     public abstract string Execute(string[] args);
-    public virtual string Name { get; protected set; }
-    public virtual string Help { get; protected set; }
+    public string Name { get; }
+    public string Help { get; }
 }
