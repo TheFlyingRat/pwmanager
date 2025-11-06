@@ -45,15 +45,20 @@ public class CreateVaultCommand : Command
             return "Vault already exists! Not implemented: overriding"; // TODO low priority
         }
 
+        Log.Debug("Building encryption, kfc and repository...");
+
         // factory
         var encStrategy = VaultWiring.BuildEncryption(o);
         var kdfStrategy = VaultWiring.BuildKdf(o);
         var repo        = VaultWiring.BuildRepository(o, encStrategy);
-        
+
+        Log.Debug("Setting vault metadata and setting instance data...");
 
         // metadata
         VaultWiring.ApplyMetadata(Vault.Instance._metadata, o);
         VaultWiring.WireVault(encStrategy, kdfStrategy, repo, o.Password);
+
+        Log.Debug("Generating a repository...");
 
         // now tell repository to create - polymorphed
         Vault.Instance.Repository.Create();

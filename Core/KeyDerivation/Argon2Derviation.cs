@@ -24,6 +24,7 @@ public class Argon2Derivation : IKeyDerivation
 
     public byte[] DeriveKey(string password, byte[] salt)
     {
+        Log.Debug("Deriving Argon2id key...");
         var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
         {
             Salt = salt,

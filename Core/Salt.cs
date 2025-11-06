@@ -6,6 +6,7 @@ public static class Salt
 {
     public static byte[] GenerateSalt(int size = 32)
     {
+        Log.Debug("Generating salt...");
         byte[] salt = new byte[size];
         var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
         rng.GetBytes(salt);

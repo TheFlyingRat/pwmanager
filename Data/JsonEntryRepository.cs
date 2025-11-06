@@ -35,9 +35,12 @@ public class JsonEntryRepository : IEntryRepository
 
     public VaultMetadata ReadMetadata()
     {
+        Log.Debug("Reading existing vault metadata...");
         if (!File.Exists(_filePath)) { throw new FileNotFoundException("Vault file not found."); };
 
         string json = File.ReadAllText(_filePath);
+
+        Log.Debug("Unpacking metadata...");
         VaultEnvelope env = JsonSerializer.Deserialize<VaultEnvelope>(json, JsonOptions) ?? throw new InvalidDataException("Malformed metadata in vault file.");
 
         if (env.Metadata == null) { throw new InvalidDataException("Missing metadata."); };
@@ -52,12 +55,13 @@ public class JsonEntryRepository : IEntryRepository
 
         if (_encryption == null) { throw new InvalidOperationException("Encryption not configured."); } // only required for decrypting, not reading metadata
 
+        Log.Debug("Loading vault...");
         string json = File.ReadAllText(_filePath);
 
         VaultEnvelope env = JsonSerializer.Deserialize<VaultEnvelope>(json, JsonOptions) ?? throw new InvalidDataException("Malformed vault file.");
         if (env.Metadata == null) { throw new InvalidDataException("Missing metadata."); }
-        ;
-
+        
+        Log.Debug("Setting vault metadata...");
         Vault.Instance._metadata = env.Metadata;
 
         string entriesJson;
@@ -70,6 +74,7 @@ public class JsonEntryRepository : IEntryRepository
             throw new UnauthorizedAccessException("Failed to decrypt! Wrong password.");
         }
 
+        Log.Debug("Deserializing decrypted entries...");
         Vault.Instance._entries = DeserializeEntries(entriesJson);
     }
 
@@ -106,9 +111,11 @@ public class JsonEntryRepository : IEntryRepository
     {
         if (_encryption == null) { throw new InvalidOperationException("Encryption not configured."); }
 
+        Log.Debug("Serializing entries...");
         string entriesJson = JsonSerializer.Serialize(entries, JsonOptions);
         string encrypted = _encryption.Encrypt(entriesJson, Vault.Instance.RuntimePassword);
 
+        Log.Debug("Saving to file...");
         var env = new VaultEnvelope
         {
             Metadata = Vault.Instance._metadata,

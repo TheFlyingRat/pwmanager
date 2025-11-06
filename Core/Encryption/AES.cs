@@ -19,6 +19,8 @@ namespace PWMan.Core.Encryption
 
         public string Encrypt(string plaintext, string password)
         {
+            Log.Debug("Encrypting...");
+            
             // 1) fresh salt per encryption
             var salt = Salt.GenerateSalt(SaltSize);
 
@@ -35,9 +37,11 @@ namespace PWMan.Core.Encryption
 
             var aes = new AesGcm(key, TagSize); // utilise derived key and tagsize for integrity
 
+            Log.Debug("Running AES encrypt...");
             aes.Encrypt(nonce, pt, ct, tag); // encrypt
 
             // 5) pack [salt|nonce|tag|ciphertext] to a base64 string
+            Log.Debug("Packing...");
             var output = new byte[SaltSize + NonceSize + TagSize + ct.Length];
             Buffer.BlockCopy(salt,  0, output, 0,                         SaltSize);
             Buffer.BlockCopy(nonce, 0, output, SaltSize,                  NonceSize);
@@ -52,11 +56,13 @@ namespace PWMan.Core.Encryption
             var input = Convert.FromBase64String(ciphertext);
 
             // sanity check first (there needs to be some data beyond the end of the byte lengths)
+            Log.Debug("Checking ciphertext length...");
             if (input.Length < SaltSize + NonceSize + TagSize) {
                 throw new CryptographicException("Ciphertext too short.");
             };
 
             // 1) unpack [salt|nonce|tag|ciphertext]
+            Log.Debug("Unpacking...");
             var salt  = new byte[SaltSize];
             var nonce = new byte[NonceSize];
             var tag   = new byte[TagSize];
@@ -79,7 +85,7 @@ namespace PWMan.Core.Encryption
             try
             {
                 var aes = new AesGcm(key, TagSize);
-
+                Log.Debug("Running AES decrypt...");
                 aes.Decrypt(nonce, ct, tag, pt); // try decrypt
             }
             catch (CryptographicException)

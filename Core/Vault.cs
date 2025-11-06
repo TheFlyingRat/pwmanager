@@ -49,13 +49,16 @@ public class Vault
     {
         if (Repository == null) { throw new InvalidOperationException("No repository."); }
 
+        Log.Debug("Attempting to unlock vault...");
+
         try
         {
             RuntimePassword = password; // set runtimepassword to the given password - it'll be used for encryption
             Repository.LoadVault(); // does the decrypting
             IsLocked = false;
             return true;
-        } catch (UnauthorizedAccessException ex)
+        }
+        catch (UnauthorizedAccessException ex)
         {
             RuntimePassword = null;
             throw new UnauthorizedAccessException(ex.Message);
@@ -71,6 +74,8 @@ public class Vault
     public void Lock()
     {
         if (IsLocked) { throw new InvalidOperationException("Vault is already locked."); }
+
+        Log.Debug("Attempting to lock vault...");
 
         SaveAll();
         RuntimePassword = null;

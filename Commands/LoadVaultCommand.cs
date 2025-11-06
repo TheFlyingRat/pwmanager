@@ -43,10 +43,11 @@ public class LoadVaultCommand : Command
             return $"Failed to read vault metadata: {ex.Message}";
         }
         metadata.SaveFile ??= path; // use the one from the metadata of the repository, otherwise the one user entered
-        // TODO: this can be a save as feature probably
-        
+                                    // TODO: this can be a save as feature probably
+
 
         // 2. we know the metadata, so based on it, we can try to create the kdf, encryption and repository type
+        Log.Debug("Trying to build kdf, encryption and repository");
         IKeyDerivation kdf = BuildKdf(metadata);
         IEncryptionStrategy enc = BuildEncryption(metadata);
         IEntryRepository repo = CreateRepoWithEncryption(repoType, path, enc);

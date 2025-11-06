@@ -15,6 +15,7 @@ public class Pbkdf2Derivation : IKeyDerivation
 
     public byte[] DeriveKey(string password, byte[] salt)
     {
+        Log.Debug("Deriving Pbkdf2 key...");
         var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA256);
         return pbkdf2.GetBytes(KeySize);
     }
