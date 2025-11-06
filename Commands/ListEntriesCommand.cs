@@ -9,46 +9,44 @@ public class ListEntriesCommand : Command
 
     public override string Execute(string[] args)
     {
-        try
+        if (Vault.Instance.IsLocked)
         {
-            var entries = Vault.Instance.ListEntries();
+            return "Vault is locked. Please unlock it first.";
+        }
 
-            if (entries.Count == 0)
-            {
-                return "No entries found in the vault.";
-            }
+        var entries = Vault.Instance.ListEntries();
 
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Entries in vault:");
-            foreach (var entry in entries)
+        if (entries.Count == 0)
+        {
+            return "No entries found in the vault.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("Entries in vault:");
+        foreach (var entry in entries)
+        {
+            if (args.Length > 1 && args[1] == "details")
             {
-                if (args.Length > 1 && args[1] == "details")
+                switch (entry.EntryType)
                 {
-                    switch (entry.EntryType)
-                    {
-                        case EntryType.Wifi:
-                            var wifiEntry = (WifiEntry)entry;
-                            sb.AppendLine($"- {entry.Title} (SSID: {wifiEntry.Ssid}, Security: {wifiEntry.SecurityType}, Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
-                            break;
-                        case EntryType.SecureNote:
-                            var noteEntry = (SecureNote)entry;
-                            sb.AppendLine($"- {entry.Title} (Content: {noteEntry.Content}, Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
-                            break;
-                        case EntryType.Generic:
-                            sb.AppendLine($"- {entry.Title} (Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
-                            break;
-                    }
-                }
-                else
-                {
-                    sb.AppendLine($"- {entry.Title} (Username: {entry.Username})");
+                    case EntryType.Wifi:
+                        var wifiEntry = (WifiEntry)entry;
+                        sb.AppendLine($"- {entry.Title} (SSID: {wifiEntry.Ssid}, Security: {wifiEntry.SecurityType}, Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
+                        break;
+                    case EntryType.SecureNote:
+                        var noteEntry = (SecureNote)entry;
+                        sb.AppendLine($"- {entry.Title} (Content: {noteEntry.Content}, Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
+                        break;
+                    case EntryType.Generic:
+                        sb.AppendLine($"- {entry.Title} (Username: {entry.Username}, Password: {entry.Password}, URL: {entry.Url}, Notes: {entry.Notes}, CreatedAt: {entry.CreatedAt}, UpdatedAt: {entry.UpdatedAt})");
+                        break;
                 }
             }
-            return sb.ToString();
+            else
+            {
+                sb.AppendLine($"- {entry.Title} (Username: {entry.Username})");
+            }
         }
-        catch (InvalidOperationException ex)
-        {
-            return ex.Message;
-        }
+        return sb.ToString();
     }
 }
