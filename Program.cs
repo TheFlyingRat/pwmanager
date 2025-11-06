@@ -14,7 +14,8 @@ static class Program
             new ListEntriesCommand(),
             new SaveVaultCommand(),
             new NewVaultCommand(),
-            new LoadVaultCommand()
+            new LoadVaultCommand(),
+            new SearchEntriesCommand()
         };
 
         REPL repl = new REPL(commands);
