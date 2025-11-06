@@ -8,122 +8,143 @@ namespace PWMan.Data;
 public class JsonEntryRepository : IEntryRepository
 {
     private readonly string _filePath;
-    private readonly IEncryptionStrategy _encryption;
-    private readonly string _key;
+    private readonly IEncryptionStrategy? _encryption;
+
+    private class VaultEnvelope
+    {
+        public VaultMetadata? Metadata { get; set; }
+        public string Entries { get; set; } = "";
+    }
+
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        // store enums as strings: "SecureNote" instead of 1 (safer over time)
+        // store enums as strings
         Converters = { new JsonStringEnumConverter(allowIntegerValues: true) }
     };
 
-    public JsonEntryRepository(string filePath, IEncryptionStrategy encryption, string key)
+    public JsonEntryRepository(string filePath, IEncryptionStrategy? encryption)
     {
         _filePath = filePath;
         _encryption = encryption;
-        _key = key;
     }
 
-    private bool Exists()
+
+    // api
+
+
+    public VaultMetadata ReadMetadata()
     {
-        if (!File.Exists(_filePath))
-        {
-            Create();
-            return false;
-        }
-        return true;
+        if (!File.Exists(_filePath)) { throw new FileNotFoundException("Vault file not found."); };
+
+        string json = File.ReadAllText(_filePath);
+        VaultEnvelope env = JsonSerializer.Deserialize<VaultEnvelope>(json, JsonOptions) ?? throw new InvalidDataException("Malformed metadata in vault file.");
+
+        if (env.Metadata == null) { throw new InvalidDataException("Missing metadata."); };
+
+        env.Metadata.SaveFile = _filePath;
+        return env.Metadata;
     }
 
-    public List<Entry> GetAllEntries()
+    public void LoadVault()
     {
-        if (!Exists())
-        {
-            return new List<Entry>();
-        }
+        if (!File.Exists(_filePath)) { throw new FileNotFoundException("Vault doesn't exist."); }
 
+        if (_encryption == null) { throw new InvalidOperationException("Encryption not configured."); } // only required for decrypting, not reading metadata
+
+        string json = File.ReadAllText(_filePath);
+
+        VaultEnvelope env = JsonSerializer.Deserialize<VaultEnvelope>(json, JsonOptions) ?? throw new InvalidDataException("Malformed vault file.");
+        if (env.Metadata == null) { throw new InvalidDataException("Missing metadata."); }
+        ;
+
+        Vault.Instance._metadata = env.Metadata;
+
+        string entriesJson;
         try
         {
-            var json = _encryption.Decrypt(File.ReadAllText(_filePath), _key);
-            return DeserializeEntries(json);
-        } catch (JsonException) {
-            // TODO (valid path but no data): handle case where file is corrupted or not valid json after decryption
-            // also bad decryption key could lead to this
-            Console.WriteLine("Failed to decrypt! Empty vault returned.");
-            return new List<Entry>();
+            entriesJson = _encryption.Decrypt(env.Entries, Vault.Instance.RuntimePassword);
         }
+        catch
+        {
+            throw new UnauthorizedAccessException("Failed to decrypt! Wrong password.");
+        }
+
+        Vault.Instance._entries = DeserializeEntries(entriesJson);
     }
 
-    public void SaveEntry(Entry entry) // used for edits as well
+    public void SaveVault()
     {
-        var entries = GetAllEntries();
-        var existingEntryIndex = entries.FindIndex(e => e.Id == entry.Id); // lambda
-
-        if (existingEntryIndex >= 0)
-        {
-            entries[existingEntryIndex] = entry; // Update existing entry
-        }
-        else
-        {
-            entries.Add(entry); // Add new entry
-        }
-        var json = JsonSerializer.Serialize(entries);
-        var encryptedJson = _encryption.Encrypt(json, _key);
-        File.WriteAllText(_filePath, encryptedJson);
+        Persist(Vault.Instance.ListEntries());
     }
+
+
+
+
+
+
 
     public Entry? GetEntry(Guid id)
     {
-        var entries = GetAllEntries();
+        var entries = Vault.Instance.ListEntries();
         return entries.Find(e => e.Id == id); // lambda
-    }
-
-    public void DeleteEntry(Guid id)
-    {
-        var entries = GetAllEntries();
-        entries.RemoveAll(e => e.Id == id); // lambda
-
-        var json = JsonSerializer.Serialize(entries);
-        var encryptedJson = _encryption.Encrypt(json, _key);
-        File.WriteAllText(_filePath, encryptedJson);
-    }
-
-    public void SaveAllEntries(List<Entry> entries)
-    {
-        var json = JsonSerializer.Serialize(entries);
-        var encryptedJson = _encryption.Encrypt(json, _key);
-        File.WriteAllText(_filePath, encryptedJson);
     }
 
     public void Create()
     {
-        var emptyList = new List<Entry>();
-        var json = JsonSerializer.Serialize(emptyList);
-        var encryptedJson = _encryption.Encrypt(json, _key);
-        File.WriteAllText(_filePath, encryptedJson);
+        Persist(new List<Entry>()); // save to disk
+        Vault.Instance._entries = new List<Entry>(); // initialise empty
     }
 
+
+
+
+
+
+    // writes to the save file
+    private void Persist(List<Entry> entries)
+    {
+        if (_encryption == null) { throw new InvalidOperationException("Encryption not configured."); }
+
+        string entriesJson = JsonSerializer.Serialize(entries, JsonOptions);
+        string encrypted = _encryption.Encrypt(entriesJson, Vault.Instance.RuntimePassword);
+
+        var env = new VaultEnvelope
+        {
+            Metadata = Vault.Instance._metadata,
+            Entries = encrypted
+        };
+
+        var fileJson = JsonSerializer.Serialize(env, JsonOptions);
+        File.WriteAllText(_filePath, fileJson);
+    }
+
+    // types of entry
     private List<Entry> DeserializeEntries(string json)
     {
-        var elements = JsonSerializer.Deserialize<List<JsonElement>>(json);
+        var elements = JsonSerializer.Deserialize<List<JsonElement>>(json, JsonOptions);
         var entries = new List<Entry>();
 
         foreach (var element in elements)
         {
-            int typeValue = element.GetProperty("EntryType").GetInt32(); // enum value
+            // Get EntryType as a string
+            string typeName = element.GetProperty("EntryType").GetString();
+            EntryType entryType = Enum.Parse<EntryType>(typeName); // convert type enum name to the enum value
 
             Entry entry;
-            switch ((EntryType)typeValue)
+
+            switch (entryType)
             {
                 case EntryType.SecureNote:
-                    entry = JsonSerializer.Deserialize<SecureNote>(element);
+                    entry = JsonSerializer.Deserialize<SecureNote>(element.GetRawText(), JsonOptions);
                     break;
 
                 case EntryType.Wifi:
-                    entry = JsonSerializer.Deserialize<WifiEntry>(element);
+                    entry = JsonSerializer.Deserialize<WifiEntry>(element.GetRawText(), JsonOptions);
                     break;
 
                 default:
-                    entry = JsonSerializer.Deserialize<Entry>(element);
+                    entry = JsonSerializer.Deserialize<Entry>(element.GetRawText(), JsonOptions);
                     break;
             }
 
