@@ -4,7 +4,7 @@ namespace PWMan.Commands;
 
 public class AddEntryCommand : Command
 {
-    public AddEntryCommand() : base("add", "Adds a new entry to the vault. Usage: add (optional: entryType)") { }
+    public AddEntryCommand() : base("add", "Adds a new entry to the vault. Optional parameter entryType") { }
     public override string Execute(string[] args)
     {
         if (Vault.Instance.IsLocked)
@@ -33,10 +33,5 @@ public class AddEntryCommand : Command
         {
             return new AddGenericEntryCommand().Execute(args);
         }
-    }
-    
-    protected static void SaveEntry(Entry entry)
-    {
-        Vault.Instance.AddEntry(entry);
     }
 }

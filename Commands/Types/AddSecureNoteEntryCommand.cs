@@ -1,3 +1,4 @@
+using PWMan.CLI;
 using PWMan.Core;
 
 namespace PWMan.Commands;
@@ -11,15 +12,12 @@ public class AddSecureNoteEntryCommand : AddEntryCommand
             return "Vault is locked. Please unlock it first.";
         }
 
-        Console.Write("Note Title: ");
-        string title = Console.ReadLine() ?? "";
-
-        Console.Write("Note Content: ");
-        string content = Console.ReadLine() ?? "";
+        string title = GetDefaultValidate.GetStringRequired("Note Title: ");
+        string content = GetDefaultValidate.GetString("Note Content: ", "");
 
         SecureNote newEntry = new SecureNote(title, content);
 
-        SaveEntry(newEntry);
+        Vault.Instance.AddEntry(newEntry);
         return $"Secure note '{title}' added successfully.";
     }
 }
