@@ -12,8 +12,6 @@ public class CreateVaultCommand : Command
     {
         var o = new NewVaultOptions();
 
-        // TODO: config file to determine what valid types are instead of having to hardcode these
-
         o.Password = GetDefaultValidate.GetStringRequired("Enter a new vault password: ");
 
         o.Encryption = GetDefaultValidate.ValidateEncryption("Select encryption method", o.Encryption);
@@ -43,7 +41,7 @@ public class CreateVaultCommand : Command
             }
         } else
         {
-            o.SaveFile = "memory";
+            o.SaveFile = "memory"; // just to keep the system happy
         }
 
 
