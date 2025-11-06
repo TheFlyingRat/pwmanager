@@ -20,7 +20,7 @@ public class CreateVaultCommand : Command
 
         o.Kdf = GetDefaultValidate.ValidateDerivation("Select KDF", o.Kdf);
 
-        if (o.Kdf == DerivationType.argon2)
+        if (o.Kdf == DerivationType.Argon2)
         {
             // gets slow with higher than like 12 on laptops
             o.Iterations = GetDefaultValidate.ValidateInt($"Select iteration count ({o.Argon2IterationsMin}-{o.Argon2IterationsMax}) [{o.Argon2Iterations}]: ", o.Argon2IterationsMin, o.Argon2IterationsMax, o.Argon2Iterations); // TODO config for recommended values
@@ -33,7 +33,7 @@ public class CreateVaultCommand : Command
 
         o.RepositoryType = GetDefaultValidate.ValidateRepositoryType("Select save type", o.RepositoryType);
 
-        if (o.RepositoryType != RepositoryType.memory)
+        if (o.RepositoryType != RepositoryType.Memory)
         {
             o.SaveFile = GetDefaultValidate.GetString($"Choose output file name [{o.SaveFile}]: ", o.SaveFile);
 

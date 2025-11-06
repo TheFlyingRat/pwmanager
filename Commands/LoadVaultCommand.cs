@@ -30,7 +30,7 @@ public class LoadVaultCommand : Command
         string path = args[2].Trim().ToLower();
 
         // we cant use memory repositories because they're deleted. 
-        if (repoType == RepositoryType.memory) { return "In-Memory repositories are destroyed after unloading!"; }
+        if (repoType == RepositoryType.Memory) { return "In-Memory repositories are destroyed after unloading!"; }
 
         // 1. create a probe for metadata - plaintext, so encryption is undetermined
         IEntryRepository probe = CreateRepoWithoutEncryption(repoType, path);
@@ -88,7 +88,7 @@ public class LoadVaultCommand : Command
         switch (type)
         {
             default:
-            case RepositoryType.json:
+            case RepositoryType.Json:
                 return new JsonEntryRepository(path); // null encryption - only used for retrieval of metadata
             // case "sqlite": // TODO
                // return null;
@@ -100,7 +100,7 @@ public class LoadVaultCommand : Command
         switch (type)
         {
             default:
-            case RepositoryType.json:
+            case RepositoryType.Json:
                 return new JsonEntryRepository(path, enc); // actual repo object to be used on the vault instance
             // case "sqlite": 
             //     return null; // TODO
@@ -114,10 +114,10 @@ public class LoadVaultCommand : Command
 
         switch (method)
         {
-            case DerivationType.argon2:
+            case DerivationType.Argon2:
             default:
                 return new Argon2Derivation(iterations: meta.Iterations, keySize: keySize);
-            case DerivationType.pbkdf2:
+            case DerivationType.PBKDF2:
                 return new Pbkdf2Derivation(iterations: meta.Iterations, keySize: keySize);
         }
     }
@@ -128,9 +128,9 @@ public class LoadVaultCommand : Command
 
         switch (method)
         {
-            case EncryptionType.caesar:
+            case EncryptionType.Caesar:
                 return new Caesar();
-            case EncryptionType.aes:
+            case EncryptionType.AES:
             default:
                 return new AES(saltSize: meta.SaltSize);
         }

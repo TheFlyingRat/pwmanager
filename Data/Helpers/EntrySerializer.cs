@@ -33,7 +33,7 @@ public static class EntrySerializer
             foreach (var element in elements)
             {
                 string typeName = element.GetProperty("EntryType").GetString()!; // null forgive - theres no way for the encrypted part of the save file to be modified to remove EntryType
-                EntryType entryType = Enum.Parse<EntryType>(typeName); // convert type enum name to the enum value
+                EntryType entryType = Enum.Parse<EntryType>(typeName, true); // convert type enum name to the enum value
 
                 Entry? entry;
                 switch (entryType)

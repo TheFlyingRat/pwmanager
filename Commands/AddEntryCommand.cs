@@ -11,7 +11,7 @@ public class AddEntryCommand : Command
     {
         string selectedType = args.Length > 1 ? args[1] : "Generic";
 
-        EntryType entryType = Enum.Parse<EntryType>(selectedType);
+        EntryType entryType = Enum.Parse<EntryType>(selectedType, true);
 
         switch (entryType)
         {

@@ -12,9 +12,9 @@ namespace PWMan.Core.Setup
         {
             switch (options.Encryption)
             {
-                case EncryptionType.caesar:
+                case EncryptionType.Caesar:
                     return new Caesar();
-                case EncryptionType.aes:
+                case EncryptionType.AES:
                 default:
                     return new AES(saltSize: options.SaltSize);
             }
@@ -25,9 +25,9 @@ namespace PWMan.Core.Setup
         {
             switch (options.Kdf)
             {
-                case DerivationType.argon2:
+                case DerivationType.Argon2:
                     return new Argon2Derivation(iterations: options.Iterations, keySize: options.KeySize);
-                case DerivationType.pbkdf2:
+                case DerivationType.PBKDF2:
                 default:
                     return new Pbkdf2Derivation(iterations: options.Iterations, keySize: options.KeySize);
             }
@@ -38,9 +38,9 @@ namespace PWMan.Core.Setup
         {
             switch (options.RepositoryType)
             {
-                case RepositoryType.memory:
+                case RepositoryType.Memory:
                     return new InMemoryRepository(enc);
-                case RepositoryType.json:
+                case RepositoryType.Json:
                 default:
                     return new JsonEntryRepository(options.SaveFile, enc);
             }

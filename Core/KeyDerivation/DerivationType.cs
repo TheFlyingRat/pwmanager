@@ -1,6 +1,6 @@
 namespace PWMan.Core;
 
 public enum DerivationType {
-    argon2,
-    pbkdf2
+    Argon2,
+    PBKDF2
 }
