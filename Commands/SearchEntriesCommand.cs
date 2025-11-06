@@ -22,9 +22,7 @@ public class SearchEntriesCommand : Command
         string query = string.Join(' ', args[1..]).ToLower(); // combine all args after command name as query
 
         // search all entries title for the case insensitive query
-        List<Entry> results = Vault.Instance.ListEntries()
-            .Where(e => e.Title.ToLower().Contains(query)) // fuzzy search using contains (will match single letters though which is fine i suppose???)
-            .ToList();
+        List<Entry> results = Vault.Instance.SearchEntries(query);
 
 
         if (results.Count == 0) { return "No entries found matching the query."; }
