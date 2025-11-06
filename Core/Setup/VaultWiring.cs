@@ -38,6 +38,8 @@ namespace PWMan.Core.Setup
         {
             switch (options.SaveType.ToLower())
             {
+                case "memory":
+                    return new InMemoryRepository(enc);
                 case "json":
                 default:
                     return new JsonEntryRepository(options.SaveFile, enc);
