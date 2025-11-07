@@ -4,8 +4,8 @@ namespace PWMan.Core.KeyDerivation;
 
 public class Pbkdf2Derivation : IKeyDerivation
 {
-    private int Iterations { get; set; }
-    private int KeySize { get; set; }
+    private int Iterations { get; }
+    private int KeySize { get; }
 
     public Pbkdf2Derivation(int iterations = 100_000, int keySize = 32)
     {

@@ -9,10 +9,10 @@ namespace PWMan.Core.KeyDerivation;
 public class Argon2Derivation : IKeyDerivation
 {
 
-    private int Iterations {get; set;}
-    private int MemorySize {get; set;}
-    private int DegreeOfParallelism {get; set;}
-    private int KeySize {get; set;}
+    private int Iterations { get; }
+    private int MemorySize { get; }
+    private int DegreeOfParallelism { get; }
+    private int KeySize { get; }
 
     public Argon2Derivation(int iterations = 3, int memorySize = 1024 * 64, int degreeOfParallelism = 2, int keySize = 32)
     {
@@ -25,6 +25,7 @@ public class Argon2Derivation : IKeyDerivation
     public byte[] DeriveKey(string password, byte[] salt)
     {
         Log.Debug("Deriving Argon2id key...");
+        Log.Debug("" + Iterations);
         var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
         {
             Salt = salt,
