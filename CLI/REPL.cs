@@ -67,7 +67,7 @@ namespace PWMan.CLI
                     default:
                         try
                         {
-                            _invoker.Run(commandName, inputArgs);
+                            Console.WriteLine(_invoker.Run(commandName, inputArgs));
                         } catch (Exception ex)
                         {
                             Console.WriteLine($"Uncaught Exception: {ex.Message}");

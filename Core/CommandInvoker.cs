@@ -17,19 +17,17 @@ public class CommandInvoker
     }
 
     // Run using either overridden args (if provided) or the stored args
-    public void Run(string name, string[] args)
+    public string Run(string name, string[] args)
     {
         if (!commands.ContainsKey(name))
         {
-            Console.WriteLine($"Unknown command: {name}");
-            return;
+            return $"Unknown command: {name}";
         }
 
         // was help requested? (would be first argument)
         if (args != null && args.Length > 1 && (args[1] == "help" || args[1] == "h"))
         {
-            Console.WriteLine(commands[name].Command.Help);
-            return;
+            return commands[name].Command.Help;
         }
 
         // no vault exist yet?
@@ -38,8 +36,7 @@ public class CommandInvoker
             // only can load or create if theres no vault
             if (commands[name].Command.RequiresVault)
             {
-                Console.WriteLine("Cannot execute without a vault! Did you load or create first?");
-                return;
+                return "Cannot execute without a vault! Did you load or create first?";
             }
         }
 
@@ -49,15 +46,14 @@ public class CommandInvoker
             // prevent creating or loading another
             if (commands[name].Command is LoadVaultCommand || commands[name].Command is CreateVaultCommand)
             {
-                Console.WriteLine("A vault is already loaded. Please unload before creating/loading another one!");
-                return;
+                return "A vault is already loaded. Please unload before creating/loading another one!";
             }
         }
 
         string[] runArgs = args!.Length > 1 ? args : commands[name].DefaultArgs;
         string response = commands[name].Command.Execute(runArgs);
 
-        Console.WriteLine(response);
+        return response;
     }
     public List<Command> RegisteredCommands { get { return commands.Values.Select(v => v.Command).ToList(); } }
 }
